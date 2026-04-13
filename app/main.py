@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 import os
 import sys
 from pathlib import Path
@@ -13,18 +14,19 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from app.prompts import SYSTEM_PROMPT, USER_TEMPLATE, COMPRESS_TEMPLATE
+from app.career_ops_bridge import (
+    career_ops_available,
+    career_ops_install_hint,
+    default_career_ops_dir,
+    fetch_job_description,
+    load_high_score_opportunities,
+    run_career_ops_scan,
+)
 from app.context_builder import build_prompt_context
 from app.renderer import render_resume
 from app.schema import ResumePayload
 from app.compiler import compile_pdf, pdf_export_available
 from app.docx_renderer import render_docx
-from app.job_finder import (
-    find_top_jobs,
-    load_job_search_config,
-    parse_job_urls,
-    serialize_job_matches,
-)
-from app.job_digest import run_job_digest
 
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
@@ -321,98 +323,109 @@ def render_resume_tab() -> None:
             st.error(f"Generation failed: {exc}")
 
 
-def render_job_finder_tab() -> None:
-    st.caption("Paste public job URLs, crawl them with Crawl4AI, rank locally, then send one JD into Resume Tailor.")
-    config = load_job_search_config(DATA_DIR / "job_search_config.yml")
+def render_career_ops_tab() -> None:
+    st.caption("Use Career-Ops to scan portals, keep scored roles, then send one role into Resume Tailor.")
+    load_config()
+    configured_career_ops_dir = os.getenv("CAREER_OPS_DIR", "").strip()
+    default_career_ops = configured_career_ops_dir or str(default_career_ops_dir(BASE_DIR))
 
-    urls_text = st.text_area(
-        "Job URLs",
-        height=220,
-        placeholder="Paste one public job URL per line...",
-        key="job_urls_input",
-    )
+    st.markdown("### Career-Ops Bridge")
     st.caption(
-        f"Current local filter: Top {config.top_k}, minimum score {config.minimum_score}. "
-        "Edit `data/job_search_config.yml` to tune titles, seniority exclusions, and locations."
+        "Use `career-ops` as the portal scanner and high-score tracker, then hand selected jobs back into Resume Tailor."
     )
-    st.caption(
-        "LIMI visa filter is enabled: full-time roles are ranked for future sponsorship fit; "
-        "OPT/STEM-OPT language is treated as a positive signal; internships are not blocked for lacking sponsorship."
+    bridge_col1, bridge_col2, bridge_col3 = st.columns([2.4, 1, 1])
+    with bridge_col1:
+        career_ops_dir_text = st.text_input("Career-Ops path", value=default_career_ops, key="career_ops_dir")
+    with bridge_col2:
+        minimum_career_ops_score = st.number_input(
+            "Min score",
+            min_value=0.0,
+            max_value=5.0,
+            value=4.0,
+            step=0.1,
+            key="career_ops_min_score",
+        )
+    with bridge_col3:
+        dry_run_scan = st.checkbox("Dry-run scan", value=False, key="career_ops_dry_run")
+
+    scan_company = st.text_input(
+        "Optional company filter",
+        value="",
+        placeholder="e.g. OpenAI",
+        key="career_ops_company_filter",
     )
+    scan_button_col, import_button_col = st.columns(2)
+    run_career_ops_scan_button = scan_button_col.button("Run Career-Ops Scan")
+    import_career_ops_button = import_button_col.button("Load High-Score Career-Ops Jobs")
 
-    st.markdown("### Daily Careers Digest")
-    st.caption(
-        "Configured careers pages from `data/company_careers.yml` are combined with a built-in "
-        "`newgrad-jobs.com` data feed. The digest writes latest files to "
-        "`outputs/job_digest/top_13_jobs.json` and `.csv`."
-    )
-    run_digest_now = st.button("Run Careers Digest Now")
-    if run_digest_now:
-        try:
-            with st.spinner("Discovering job links from careers pages and building the Top 13 digest..."):
-                digest = run_job_digest(
-                    careers_config_path=DATA_DIR / "company_careers.yml",
-                    search_config_path=DATA_DIR / "job_search_config.yml",
-                    experience_library_path=DATA_DIR / "experience_library.md",
-                    project_library_path=DATA_DIR / "project_library.md",
-                    output_dir=OUTPUT_DIR / "job_digest",
-                )
-            st.session_state["job_matches"] = digest.top_matches
-            st.session_state["job_match_warnings"] = digest.warnings
-            st.success(
-                f"Daily digest updated. Discovered {len(digest.discovered_links)} candidate links and kept "
-                f"{len(digest.top_matches)} ranked jobs."
-            )
-        except Exception as exc:
-            st.error(f"Daily digest failed: {exc}")
-
-    st.divider()
-    st.markdown("### newgrad-jobs.com Data Feed")
-    st.caption("Auto-discovers Data-related postings from newgrad-jobs.com and ranks them with your LIMI filters.")
-    fetch_newgrad_jobs = st.button("Fetch Data Jobs From newgrad-jobs.com")
-    if fetch_newgrad_jobs:
-        try:
-            with st.spinner("Discovering Data-related jobs from newgrad-jobs.com and ranking local matches..."):
-                digest = run_job_digest(
-                    careers_config_path=DATA_DIR / "company_careers.yml",
-                    search_config_path=DATA_DIR / "job_search_config.yml",
-                    experience_library_path=DATA_DIR / "experience_library.md",
-                    project_library_path=DATA_DIR / "project_library.md",
-                    output_dir=OUTPUT_DIR / "job_digest",
-                    include_company_careers=False,
-                    include_newgrad_jobs=True,
-                )
-            st.session_state["job_matches"] = digest.top_matches
-            st.session_state["job_match_warnings"] = digest.warnings
-            st.success(
-                f"newgrad-jobs.com scan complete. Discovered {len(digest.discovered_links)} candidate links and kept "
-                f"{len(digest.top_matches)} ranked jobs."
-            )
-        except Exception as exc:
-            st.error(f"newgrad-jobs.com scan failed: {exc}")
-
-    st.divider()
-    st.markdown("### Manual Job URLs")
-
-    fetch_jobs = st.button("Fetch and Rank Jobs", type="primary")
-
-    if fetch_jobs:
-        urls = parse_job_urls(urls_text)
-        if not urls:
-            st.error("Please paste at least one public job URL.")
+    career_ops_dir = Path(career_ops_dir_text).expanduser()
+    if run_career_ops_scan_button:
+        if not career_ops_available(career_ops_dir):
+            st.error(career_ops_install_hint(career_ops_dir))
         else:
             try:
-                with st.spinner("Crawling job pages and ranking local matches..."):
-                    matches, warnings = find_top_jobs(
-                        urls=urls,
-                        experience_library_text=read_file("experience_library.md"),
-                        project_library_text=read_file("project_library.md"),
-                        config_path=DATA_DIR / "job_search_config.yml",
+                with st.spinner("Running career-ops portal scan..."):
+                    ok, output = run_career_ops_scan(
+                        career_ops_dir,
+                        company=scan_company,
+                        dry_run=dry_run_scan,
                     )
-                st.session_state["job_matches"] = [match.__dict__ for match in matches]
-                st.session_state["job_match_warnings"] = warnings
+                if ok:
+                    st.success("Career-ops scan completed.")
+                else:
+                    st.warning("Career-ops scan finished with an error.")
+                if output:
+                    st.code(output[:8000])
             except Exception as exc:
-                st.error(f"Job finder failed: {exc}")
+                st.error(f"Career-ops scan failed: {exc}")
+
+    if import_career_ops_button:
+        if not career_ops_available(career_ops_dir):
+            st.error(career_ops_install_hint(career_ops_dir))
+        else:
+            try:
+                with st.spinner("Loading high-score career-ops opportunities and preparing Resume Tailor handoff..."):
+                    opportunities, bridge_warnings = load_high_score_opportunities(
+                        career_ops_dir,
+                        minimum_score=float(minimum_career_ops_score),
+                    )
+
+                    merged_matches: list[dict[str, Any]] = []
+                    for item in opportunities:
+                        match = {
+                            "rank": 0,
+                            "title": item.title,
+                            "url": item.url,
+                            "jd_text": item.jd_text,
+                        }
+
+                        match["career_ops_score"] = item.score_raw or (f"{item.score_value:.2f}/5" if item.score_value else "")
+                        match["career_ops_score_value"] = item.score_value or 0.0
+                        match["career_ops_status"] = item.status
+                        match["career_ops_company"] = item.company
+                        match["career_ops_report_path"] = item.report_path
+                        match["career_ops_pdf_path"] = item.pdf_path
+                        match["career_ops_notes"] = item.notes
+                        merged_matches.append(match)
+
+                    merged_matches.sort(
+                        key=lambda item: (
+                            float(item.get("career_ops_score_value", 0) or 0),
+                            str(item.get("title", "")).lower(),
+                        ),
+                        reverse=True,
+                    )
+                    for index, match in enumerate(merged_matches, start=1):
+                        match["rank"] = index
+
+                st.session_state["job_matches"] = merged_matches
+                st.session_state["job_match_warnings"] = bridge_warnings
+                st.success(
+                    f"Imported {len(merged_matches)} high-score career-ops roles "
+                    f"(threshold {minimum_career_ops_score:.1f}/5)."
+                )
+            except Exception as exc:
+                st.error(f"Career-ops import failed: {exc}")
 
     matches = st.session_state.get("job_matches", [])
     warnings = st.session_state.get("job_match_warnings", [])
@@ -423,32 +436,60 @@ def render_job_finder_tab() -> None:
                 st.write(f"- {warning}")
 
     if matches:
-        st.subheader("Top Matches")
+        st.subheader("High-Score Roles")
         st.download_button(
-            "Download Top Jobs JSON",
-            serialize_job_matches(matches),
-            file_name="top_jobs.json",
+            "Download Career-Ops Roles JSON",
+            json.dumps(matches, indent=2, ensure_ascii=False),
+            file_name="career_ops_roles.json",
             mime="application/json",
         )
         for index, match in enumerate(matches):
             st.markdown(f"### {match['rank']}. {match['title']}")
-            st.caption(f"Score: {match['score']} | {match['url']}")
-            if match.get("role_type") or match.get("visa_status"):
-                role_label = match.get("role_type", "unknown")
-                st.write(f"Role type: {role_label}")
-                st.write(f"Visa fit: {match.get('visa_status', 'Not evaluated')}")
-            if match.get("visa_evidence"):
-                st.write("Visa signals: " + ", ".join(match["visa_evidence"]))
-            if match.get("matched_terms"):
-                st.write("Matched terms: " + ", ".join(match["matched_terms"]))
-            for highlight in match.get("highlights", []):
-                st.write(f"- {highlight}")
+            score_bits = []
+            if match.get("career_ops_score"):
+                score_bits.append(f"Career-Ops score: {match['career_ops_score']}")
+            if match.get("url"):
+                score_bits.append(str(match["url"]))
+            st.caption(" | ".join(score_bits) or "No job URL available")
+            if match.get("career_ops_company") or match.get("career_ops_status"):
+                st.write(
+                    "Career-ops: "
+                    + " | ".join(
+                        part
+                        for part in [
+                            str(match.get("career_ops_company", "")).strip(),
+                            str(match.get("career_ops_status", "")).strip(),
+                        ]
+                        if part
+                    )
+                )
+            if match.get("career_ops_report_path"):
+                st.write(f"Career-ops report: {match['career_ops_report_path']}")
+            if match.get("career_ops_notes"):
+                st.write(f"Notes: {match['career_ops_notes']}")
             button_key = f"use_job_{index}"
             if st.button("Use This JD in Resume Tailor", key=button_key):
-                st.session_state["jd_input"] = match["jd_text"]
-                st.success("Loaded this job description into the Resume Tailor tab.")
+                if match.get("jd_text"):
+                    st.session_state["jd_input"] = match["jd_text"]
+                    st.success("Loaded this job description into the Resume Tailor tab.")
+                elif match.get("url"):
+                    try:
+                        with st.spinner("Fetching this job description before handing it to Resume Tailor..."):
+                            fetched_title, fetched_jd = fetch_job_description(match["url"])
+                        if fetched_jd:
+                            st.session_state["jd_input"] = fetched_jd
+                            match["jd_text"] = fetched_jd
+                            if not match.get("title") and fetched_title:
+                                match["title"] = fetched_title
+                            st.success("Fetched and loaded this job description into the Resume Tailor tab.")
+                        else:
+                            st.error("I could not recover JD text for this role yet.")
+                    except Exception as exc:
+                        st.error(f"Could not fetch the job description: {exc}")
+                else:
+                    st.error("This entry does not have a job URL or saved JD text yet.")
             with st.expander("Preview crawled JD"):
-                st.text(match["jd_text"][:5000])
+                st.text(str(match.get("jd_text", ""))[:5000] or "No JD text available yet.")
 
 
 def main() -> None:
@@ -456,11 +497,11 @@ def main() -> None:
     st.title("Resume Tailor")
     sync_jd_from_query_params()
 
-    resume_tab, job_finder_tab = st.tabs(["Resume Tailor", "Job Finder"])
+    resume_tab, career_ops_tab = st.tabs(["Resume Tailor", "Career-Ops"])
     with resume_tab:
         render_resume_tab()
-    with job_finder_tab:
-        render_job_finder_tab()
+    with career_ops_tab:
+        render_career_ops_tab()
 
 
 if __name__ == "__main__":
