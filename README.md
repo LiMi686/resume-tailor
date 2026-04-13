@@ -9,7 +9,7 @@ A local Streamlit app that tailors Li Mi's one-page LaTeX resume to a pasted job
 - Generates concise, ATS-friendly content
 - Fills the selected content into your LaTeX template
 - Exports a local Word `.docx` version from the same structured payload
-- Optionally compiles a PDF if `pdflatex` is installed
+- Optionally exports a PDF, preferring the Word layout when possible
 
 ## Project structure
 
@@ -22,6 +22,9 @@ resume-tailor/
 │  ├─ renderer.py
 │  ├─ docx_renderer.py
 │  └─ compiler.py
+├─ chrome-extension/
+│  ├─ manifest.json
+│  └─ background.js
 ├─ data/
 │  ├─ master_resume.tex
 │  ├─ experience_library.md
@@ -30,6 +33,7 @@ resume-tailor/
 ├─ outputs/
 ├─ .env.example
 ├─ requirements.txt
+├─ run_windows.bat
 └─ README.md
 ```
 
@@ -73,25 +77,56 @@ From the project root:
 streamlit run app/main.py
 ```
 
-## PDF compilation
+On Windows, the simplest option is:
+
+```bat
+run_windows.bat
+```
+
+## PDF export
 
 The app now prefers exporting PDF from the generated Word `.docx` so the PDF matches the Word layout more closely.
 
 PDF export order:
+- **Microsoft Word on Windows** via COM automation
 - **Microsoft Word on macOS** via automation
 - **Pages on macOS** via automation
 - **TeX Live / MiKTeX** as a fallback LaTeX renderer
 
-Then enable **Compile PDF after generating** in the app.
+Then enable **Generate PDF after generating** in the app.
+
+## Chrome extension
+
+A minimal Chrome extension is included in [chrome-extension](./chrome-extension).
+
+What it does:
+- Click the extension icon to open the local app.
+- Highlight a JD on a webpage, right-click, and send the selected text to the local app.
+
+How to load it:
+1. Start the local app first.
+2. Open `chrome://extensions`
+3. Turn on `Developer mode`
+4. Click `Load unpacked`
+5. Select the `chrome-extension/` folder
+
+The extension opens:
+
+```text
+http://localhost:8501/?jd=...
+```
+
+The app reads that query parameter and prefills the JD box automatically.
 
 ## How to use
 1. Paste a job description.
 2. Click **Generate Resume**.
 3. Download the generated `.tex`, `.json`, or `.docx`.
-4. Optionally compile and download the PDF.
+4. Optionally generate and download the PDF.
 
 ## Notes
 - The app can compact prompt formatting without removing source evidence.
 - The app can optionally run a second compression model pass if it looks too long for one page.
 - You can tighten the one-page constraint or candidate counts in `app/main.py` or via `.env`.
 - To update your content library, edit files in `data/`.
+- The Chrome extension passes selected JD text through the app URL, so it works best for normal-length job descriptions. For very long JDs, open the app and paste manually.

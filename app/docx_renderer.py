@@ -244,7 +244,7 @@ def render_docx(output_path: Path, payload: ResumePayload) -> None:
     run = skills.add_run(payload.skills.databases_concepts)
     _set_run_font(run)
 
-    _add_section_heading(document, "Work Experience")
+    _add_section_heading(document, "Work & Research Experience")
     for experience in payload.experiences:
         _add_two_column_line(document, experience.organization, experience.dates, left_bold=True)
         _add_two_column_line(document, experience.role, experience.location, left_italic=True)

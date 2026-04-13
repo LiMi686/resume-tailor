@@ -1,5 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
+import platform
 import shutil
 import subprocess
 
@@ -24,12 +25,16 @@ def word_pdf_available() -> bool:
     return WORD_APP.exists() and shutil.which("osascript") is not None
 
 
+def windows_word_pdf_available() -> bool:
+    return platform.system() == "Windows"
+
+
 def pages_pdf_available() -> bool:
     return PAGES_APP.exists() and shutil.which("osascript") is not None
 
 
 def pdf_export_available() -> bool:
-    return word_pdf_available() or pages_pdf_available() or pdflatex_available()
+    return windows_word_pdf_available() or word_pdf_available() or pages_pdf_available() or pdflatex_available()
 
 
 def compile_tex(tex_path: Path) -> tuple[bool, str]:
@@ -128,6 +133,46 @@ function run(argv) {
     return False, log or "Word did not produce a PDF file."
 
 
+def export_docx_to_pdf_with_windows_word(docx_path: Path) -> tuple[bool, str]:
+    if not windows_word_pdf_available():
+        return False, "Windows Word PDF export is only available on Windows."
+
+    try:
+        import win32com.client  # type: ignore[import-not-found]
+    except ImportError:
+        return False, "pywin32 is required on Windows for Word->PDF export. Install dependencies from requirements.txt."
+
+    pdf_path = docx_path.with_suffix(".pdf")
+    if pdf_path.exists():
+        pdf_path.unlink()
+
+    word = None
+    document = None
+    try:
+        word = win32com.client.DispatchEx("Word.Application")
+        word.Visible = False
+        word.DisplayAlerts = 0
+        document = word.Documents.Open(str(docx_path.resolve()))
+        document.SaveAs(str(pdf_path.resolve()), FileFormat=17)
+        document.Close(False)
+        word.Quit()
+        if pdf_path.exists():
+            return True, "Exported PDF with Microsoft Word on Windows."
+        return False, "Microsoft Word did not produce a PDF file."
+    except Exception as exc:
+        try:
+            if document is not None:
+                document.Close(False)
+        except Exception:
+            pass
+        try:
+            if word is not None:
+                word.Quit()
+        except Exception:
+            pass
+        return False, str(exc)
+
+
 def export_docx_to_pdf_with_pages(docx_path: Path) -> tuple[bool, str]:
     if not pages_pdf_available():
         return False, "Pages with AppleScript automation is not available."
@@ -159,6 +204,10 @@ end tell
 
 def compile_pdf(tex_path: Path, docx_path: Path | None = None) -> tuple[bool, str, Path | None, str | None]:
     if docx_path and docx_path.exists():
+        ok, windows_log = export_docx_to_pdf_with_windows_word(docx_path)
+        if ok:
+            return True, windows_log, docx_path.with_suffix(".pdf"), "word"
+
         ok, log = export_docx_to_pdf_with_word(docx_path)
         if ok:
             return True, log, docx_path.with_suffix(".pdf"), "word"
@@ -172,7 +221,14 @@ def compile_pdf(tex_path: Path, docx_path: Path | None = None) -> tuple[bool, st
             return True, latex_log, tex_path.with_suffix(".pdf"), "latex"
 
         combined_log = "\n\n".join(
-            part for part in [f"Word export failed:\n{log}", f"Pages export failed:\n{pages_log}", f"LaTeX export failed:\n{latex_log}"] if part.strip()
+            part
+            for part in [
+                f"Windows Word export failed:\n{windows_log}",
+                f"macOS Word export failed:\n{log}",
+                f"Pages export failed:\n{pages_log}",
+                f"LaTeX export failed:\n{latex_log}",
+            ]
+            if part.strip()
         )
         return False, combined_log, None, None
 

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Resume Tailor Launcher",
+  "version": "0.1.0",
+  "description": "Open the local Resume Tailor app and send selected job descriptions to it.",
+  "permissions": [
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "http://localhost:8501/*",
+    "http://127.0.0.1:8501/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Resume Tailor"
+  }
+}

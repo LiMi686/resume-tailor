@@ -195,12 +195,25 @@ def maybe_compress(payload: ResumePayload) -> tuple[ResumePayload, dict[str, int
     return payload, {}
 
 
+def sync_jd_from_query_params() -> None:
+    query_jd = st.query_params.get("jd", "")
+    previous_query_jd = st.session_state.get("_last_query_jd", "")
+
+    if "jd_input" not in st.session_state:
+        st.session_state["jd_input"] = query_jd
+    elif query_jd and query_jd != previous_query_jd:
+        st.session_state["jd_input"] = query_jd
+
+    st.session_state["_last_query_jd"] = query_jd
+
+
 def main() -> None:
     st.set_page_config(page_title="Resume Tailor", layout="wide")
     st.title("Resume Tailor")
     st.caption("Paste a JD, generate a one-page resume based on your fixed template.")
+    sync_jd_from_query_params()
 
-    jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...")
+    jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...", key="jd_input")
     file_stem = st.text_input("Output file name", value="tailored_resume")
 
     col1, col2 = st.columns(2)
