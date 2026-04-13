@@ -1,0 +1,154 @@
+%-------------------------
+% Resume in Latex 
+% Customized for: Li Mi (Data Analyst / Data Science)
+%-------------------------
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref} % FIXED
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{url}
+
+% fontawesome
+\usepackage{fontawesome5}
+
+% fixed width (monospace accent)
+\usepackage[scale=0.90,lf]{FiraMono}
+
+% light-grey palette
+\definecolor{light-grey}{gray}{0.83}
+\definecolor{dark-grey}{gray}{0.3}
+\definecolor{text-grey}{gray}{.08}
+
+% custom underline
+\usepackage{contour}
+\usepackage[normalem]{ulem}
+\renewcommand{\ULdepth}{1.8pt}
+\contourlength{0.8pt}
+\newcommand{\myuline}[1]{%
+  \uline{\phantom{#1}}%
+  \llap{\contour{white}{#1}}%
+}
+
+% Calibri-compatible sans serif base font
+\usepackage[sfdefault,lf]{carlito}
+\renewcommand*\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{0in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% section styling
+\newcommand{\contentfontsize}{\fontsize{10.5pt}{12.5pt}\selectfont}
+\newcommand{\sectionfontsize}{\fontsize{14pt}{16pt}\selectfont}
+\newcommand{\sectionfontfamily}{\carlito}
+\titleformat{\section}{
+  \sectionfontfamily \sectionfontsize \bfseries \raggedright
+}{}{0em}{}[\color{light-grey}{\titlerule[4pt]} \vspace{-2pt}]
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+
+% ---------- custom commands ----------
+\newcommand{\resumeItem}[1]{
+  \item{\contentfontsize #1 \vspace{-1pt}}
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+  \begin{tabular*}{\textwidth}[t]{l@{\extracolsep{\fill}}r}
+    {\contentfontsize\textbf{#1}} & {\color{dark-grey}\contentfontsize\itshape #2}\vspace{1pt}\\
+    {\contentfontsize\textit{#3}} & {\color{dark-grey}\contentfontsize\itshape #4}\\
+  \end{tabular*}\vspace{-4pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+  \item
+  \begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+    {\contentfontsize\textbf{#1}} & {\color{dark-grey}\contentfontsize\itshape #2} \\
+  \end{tabular*}\vspace{-4pt}
+}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0in,label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.18in, label=\textbullet, labelsep=0.5em]}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{0pt}}
+
+\color{text-grey}
+
+% ================== DOCUMENT ==================
+\begin{document}
+
+% ---------- HEADING ----------
+\begin{center}
+  \textbf{\Huge LI MI} \\ \vspace{3pt}
+  \contentfontsize
+  \faMapMarker* \hspace{2pt}\texttt{Tucson, AZ} \hspace{6pt} $|$ \hspace{6pt}
+  \faPhone* \hspace{2pt}\texttt{520 256 8742} \hspace{6pt} $|$ \hspace{6pt}
+  \faEnvelope \hspace{2pt}\texttt{limi330@yeah.net} \hspace{6pt} $|$ \hspace{6pt}
+  \faGithub \hspace{2pt}\href{https://github.com/LiMi686/data-portfolio}{\myuline{github.com/LiMi686/data-portfolio}}
+\end{center}
+
+% ---------- SUMMARY ----------
+\section{SUMMARY}
+\begin{itemize}[leftmargin=0.15in, label={}, labelsep=0pt, itemsep=0pt, topsep=2pt]
+  \item[] \contentfontsize <<SUMMARY>>
+\end{itemize}
+
+% ---------- EDUCATION ----------
+\section{EDUCATION}
+\resumeSubHeadingListStart
+
+  \resumeSubheading
+    {University of Arizona}{Aug 2024 -- May 2026}
+    {Master of Science in Data Science \;\;(\textbf{GPA}: 4.0/4.0) \;\;|\;\; \textbf{Department Scholarship} }{Tucson, United States}
+
+  \resumeSubheading
+    {Mapua University (Powered by Arizona State U Cintana Alliance Program)}{Aug 2019 -- Dec 2023}
+    {Bachelor of Science in Data Science \;\;(\textbf{GPA}: 3.3/4.0) \;\;|\;\; \textbf{Dean's List}}{Manila, Philippines}
+
+\resumeSubHeadingListEnd
+
+% ---------- SKILLS ----------
+\section{SKILLS}
+\begin{itemize}[leftmargin=0in, label={}]
+  \item[] \contentfontsize
+  \begin{tabular}[t]{@{}l@{}}
+    \textbf{Languages \& Analytics:} <<SKILLS_LANG>> \\
+    \textbf{Data Stack \& ML Frameworks:} <<SKILLS_STACK>> \\
+    \textbf{Databases \& Concepts:} <<SKILLS_DB>>
+  \end{tabular}
+\end{itemize}
+
+% ---------- WORK EXPERIENCE ----------
+\section{WORK EXPERIENCE}
+\resumeSubHeadingListStart
+<<EXPERIENCE_BLOCK>>
+\resumeSubHeadingListEnd
+
+% ---------- PROJECTS ----------
+\section{PROJECTS}
+\resumeItemListStart
+<<PROJECT_BLOCK>>
+\resumeItemListEnd
+
+\end{document}

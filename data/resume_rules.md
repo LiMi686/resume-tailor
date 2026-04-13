@@ -1,0 +1,16 @@
+# Resume Rules
+- Preserve the LaTeX template exactly.
+- Keep the resume on one page.
+- Make the page feel as full as possible without causing overflow.
+- Select either 3 experience entries and 3 project entries, or 4 experience entries and 2 project entries.
+- Decide between those two combinations based on the JD.
+- Always include Arizona List — Data Analyst Intern as one of the selected experience entries.
+- Do not invent tools, metrics, responsibilities, or outcomes.
+- Do not invent technologies, business context, or impact.
+- Prefer ATS-friendly wording while keeping claims truthful.
+- Aim for 3 bullets per work experience entry whenever supported by the source material, and allow 4 only when the extra detail is genuinely useful.
+- Prefer specific methods, tools, analysis targets, business context, and validated outcomes when supported by the source material.
+- Do not fill space with generic, repetitive, or padded wording.
+- If the source material does not support more detail, keep the content shorter rather than adding filler.
+- Return concise bullets that still fit the one-page layout.
+- English JD -> English resume. Chinese JD -> Chinese resume if the template supports it.

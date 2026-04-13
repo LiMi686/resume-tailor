@@ -1,0 +1,12 @@
+.env
+.venv/
+.texlive/
+__pycache__/
+*.pyc
+.DS_Store
+
+outputs/
+*.aux
+*.log
+*.out
+*.pdf
