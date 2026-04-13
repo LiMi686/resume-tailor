@@ -245,11 +245,13 @@ def render_docx(output_path: Path, payload: ResumePayload) -> None:
     _set_run_font(run)
 
     _add_section_heading(document, "Work & Research Experience")
-    for experience in payload.experiences:
+    for index, experience in enumerate(payload.experiences):
         _add_two_column_line(document, experience.organization, experience.dates, left_bold=True)
         _add_two_column_line(document, experience.role, experience.location, left_italic=True)
         for bullet in experience.bullets:
             _add_bullet(document, bullet)
+        if index < len(payload.experiences) - 1:
+            document.add_paragraph()
 
     _add_section_heading(document, "Projects")
     _add_projects(document, payload)
