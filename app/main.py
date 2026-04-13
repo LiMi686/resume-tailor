@@ -18,6 +18,13 @@ from app.renderer import render_resume
 from app.schema import ResumePayload
 from app.compiler import compile_pdf, pdf_export_available
 from app.docx_renderer import render_docx
+from app.job_finder import (
+    find_top_jobs,
+    load_job_search_config,
+    parse_job_urls,
+    serialize_job_matches,
+)
+from app.job_digest import run_job_digest
 
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
@@ -207,12 +214,8 @@ def sync_jd_from_query_params() -> None:
     st.session_state["_last_query_jd"] = query_jd
 
 
-def main() -> None:
-    st.set_page_config(page_title="Resume Tailor", layout="wide")
-    st.title("Resume Tailor")
+def render_resume_tab() -> None:
     st.caption("Paste a JD, generate a one-page resume based on your fixed template.")
-    sync_jd_from_query_params()
-
     jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...", key="jd_input")
     file_stem = st.text_input("Output file name", value="tailored_resume")
 
@@ -316,6 +319,148 @@ def main() -> None:
 
         except Exception as exc:
             st.error(f"Generation failed: {exc}")
+
+
+def render_job_finder_tab() -> None:
+    st.caption("Paste public job URLs, crawl them with Crawl4AI, rank locally, then send one JD into Resume Tailor.")
+    config = load_job_search_config(DATA_DIR / "job_search_config.yml")
+
+    urls_text = st.text_area(
+        "Job URLs",
+        height=220,
+        placeholder="Paste one public job URL per line...",
+        key="job_urls_input",
+    )
+    st.caption(
+        f"Current local filter: Top {config.top_k}, minimum score {config.minimum_score}. "
+        "Edit `data/job_search_config.yml` to tune titles, seniority exclusions, and locations."
+    )
+    st.caption(
+        "LIMI visa filter is enabled: full-time roles are ranked for future sponsorship fit; "
+        "OPT/STEM-OPT language is treated as a positive signal; internships are not blocked for lacking sponsorship."
+    )
+
+    st.markdown("### Daily Careers Digest")
+    st.caption(
+        "Configured careers pages from `data/company_careers.yml` are combined with a built-in "
+        "`newgrad-jobs.com` data feed. The digest writes latest files to "
+        "`outputs/job_digest/top_13_jobs.json` and `.csv`."
+    )
+    run_digest_now = st.button("Run Careers Digest Now")
+    if run_digest_now:
+        try:
+            with st.spinner("Discovering job links from careers pages and building the Top 13 digest..."):
+                digest = run_job_digest(
+                    careers_config_path=DATA_DIR / "company_careers.yml",
+                    search_config_path=DATA_DIR / "job_search_config.yml",
+                    experience_library_path=DATA_DIR / "experience_library.md",
+                    project_library_path=DATA_DIR / "project_library.md",
+                    output_dir=OUTPUT_DIR / "job_digest",
+                )
+            st.session_state["job_matches"] = digest.top_matches
+            st.session_state["job_match_warnings"] = digest.warnings
+            st.success(
+                f"Daily digest updated. Discovered {len(digest.discovered_links)} candidate links and kept "
+                f"{len(digest.top_matches)} ranked jobs."
+            )
+        except Exception as exc:
+            st.error(f"Daily digest failed: {exc}")
+
+    st.divider()
+    st.markdown("### newgrad-jobs.com Data Feed")
+    st.caption("Auto-discovers Data-related postings from newgrad-jobs.com and ranks them with your LIMI filters.")
+    fetch_newgrad_jobs = st.button("Fetch Data Jobs From newgrad-jobs.com")
+    if fetch_newgrad_jobs:
+        try:
+            with st.spinner("Discovering Data-related jobs from newgrad-jobs.com and ranking local matches..."):
+                digest = run_job_digest(
+                    careers_config_path=DATA_DIR / "company_careers.yml",
+                    search_config_path=DATA_DIR / "job_search_config.yml",
+                    experience_library_path=DATA_DIR / "experience_library.md",
+                    project_library_path=DATA_DIR / "project_library.md",
+                    output_dir=OUTPUT_DIR / "job_digest",
+                    include_company_careers=False,
+                    include_newgrad_jobs=True,
+                )
+            st.session_state["job_matches"] = digest.top_matches
+            st.session_state["job_match_warnings"] = digest.warnings
+            st.success(
+                f"newgrad-jobs.com scan complete. Discovered {len(digest.discovered_links)} candidate links and kept "
+                f"{len(digest.top_matches)} ranked jobs."
+            )
+        except Exception as exc:
+            st.error(f"newgrad-jobs.com scan failed: {exc}")
+
+    st.divider()
+    st.markdown("### Manual Job URLs")
+
+    fetch_jobs = st.button("Fetch and Rank Jobs", type="primary")
+
+    if fetch_jobs:
+        urls = parse_job_urls(urls_text)
+        if not urls:
+            st.error("Please paste at least one public job URL.")
+        else:
+            try:
+                with st.spinner("Crawling job pages and ranking local matches..."):
+                    matches, warnings = find_top_jobs(
+                        urls=urls,
+                        experience_library_text=read_file("experience_library.md"),
+                        project_library_text=read_file("project_library.md"),
+                        config_path=DATA_DIR / "job_search_config.yml",
+                    )
+                st.session_state["job_matches"] = [match.__dict__ for match in matches]
+                st.session_state["job_match_warnings"] = warnings
+            except Exception as exc:
+                st.error(f"Job finder failed: {exc}")
+
+    matches = st.session_state.get("job_matches", [])
+    warnings = st.session_state.get("job_match_warnings", [])
+
+    if warnings:
+        with st.expander("Crawl warnings"):
+            for warning in warnings:
+                st.write(f"- {warning}")
+
+    if matches:
+        st.subheader("Top Matches")
+        st.download_button(
+            "Download Top Jobs JSON",
+            serialize_job_matches(matches),
+            file_name="top_jobs.json",
+            mime="application/json",
+        )
+        for index, match in enumerate(matches):
+            st.markdown(f"### {match['rank']}. {match['title']}")
+            st.caption(f"Score: {match['score']} | {match['url']}")
+            if match.get("role_type") or match.get("visa_status"):
+                role_label = match.get("role_type", "unknown")
+                st.write(f"Role type: {role_label}")
+                st.write(f"Visa fit: {match.get('visa_status', 'Not evaluated')}")
+            if match.get("visa_evidence"):
+                st.write("Visa signals: " + ", ".join(match["visa_evidence"]))
+            if match.get("matched_terms"):
+                st.write("Matched terms: " + ", ".join(match["matched_terms"]))
+            for highlight in match.get("highlights", []):
+                st.write(f"- {highlight}")
+            button_key = f"use_job_{index}"
+            if st.button("Use This JD in Resume Tailor", key=button_key):
+                st.session_state["jd_input"] = match["jd_text"]
+                st.success("Loaded this job description into the Resume Tailor tab.")
+            with st.expander("Preview crawled JD"):
+                st.text(match["jd_text"][:5000])
+
+
+def main() -> None:
+    st.set_page_config(page_title="Resume Tailor", layout="wide")
+    st.title("Resume Tailor")
+    sync_jd_from_query_params()
+
+    resume_tab, job_finder_tab = st.tabs(["Resume Tailor", "Job Finder"])
+    with resume_tab:
+        render_resume_tab()
+    with job_finder_tab:
+        render_job_finder_tab()
 
 
 if __name__ == "__main__":
