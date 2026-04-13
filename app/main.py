@@ -22,6 +22,14 @@ from app.career_ops_bridge import (
     load_high_score_opportunities,
     run_career_ops_scan,
 )
+from app.jobspy_bridge import (
+    DEFAULT_JOBSPY_SCOPE_TEXT,
+    DEFAULT_JOBSPY_SITES,
+    SUPPORTED_JOBSPY_SITES,
+    jobspy_available,
+    jobspy_install_hint,
+    search_jobspy_jobs,
+)
 from app.context_builder import build_prompt_context
 from app.renderer import render_resume
 from app.schema import ResumePayload
@@ -216,6 +224,137 @@ def sync_jd_from_query_params() -> None:
     st.session_state["_last_query_jd"] = query_jd
 
 
+def assign_match_ranks(matches: list[dict[str, Any]]) -> None:
+    for index, match in enumerate(matches, start=1):
+        match["rank"] = index
+
+
+def load_match_into_resume(match: dict[str, Any]) -> None:
+    if match.get("jd_text"):
+        st.session_state["jd_input"] = str(match["jd_text"])
+        st.success("Loaded this job description into the Resume Tailor tab.")
+        return
+
+    candidate_urls: list[str] = []
+    for key in ("url", "jobspy_direct_url", "jobspy_board_url"):
+        value = str(match.get(key, "")).strip()
+        if value and value not in candidate_urls:
+            candidate_urls.append(value)
+
+    if candidate_urls:
+        last_error = ""
+        for index, candidate_url in enumerate(candidate_urls):
+            try:
+                spinner_text = "Fetching this job description before handing it to Resume Tailor..."
+                if index > 0:
+                    spinner_text = "Retrying with an alternate job link..."
+                with st.spinner(spinner_text):
+                    fetched_title, fetched_jd = fetch_job_description(candidate_url)
+                if fetched_jd:
+                    st.session_state["jd_input"] = fetched_jd
+                    match["jd_text"] = fetched_jd
+                    match["url"] = candidate_url
+                    if not match.get("title") and fetched_title:
+                        match["title"] = fetched_title
+                    st.success("Fetched and loaded this job description into the Resume Tailor tab.")
+                    return
+            except Exception as exc:
+                last_error = str(exc)
+
+        if last_error:
+            st.error(f"Could not fetch the job description: {last_error}")
+        else:
+            st.error("I could not recover JD text for this role yet.")
+        return
+
+    st.error("This entry does not have a job URL or saved JD text yet.")
+
+
+def render_match_list(
+    *,
+    matches: list[dict[str, Any]],
+    warnings: list[str],
+    title: str,
+    download_label: str,
+    download_file_name: str,
+    button_prefix: str,
+) -> None:
+    if warnings:
+        with st.expander("Warnings"):
+            for warning in warnings:
+                st.write(f"- {warning}")
+
+    if not matches:
+        return
+
+    st.subheader(title)
+    st.download_button(
+        download_label,
+        json.dumps(matches, indent=2, ensure_ascii=False),
+        file_name=download_file_name,
+        mime="application/json",
+    )
+
+    for index, match in enumerate(matches):
+        st.markdown(f"### {match['rank']}. {match['title']}")
+
+        caption_bits: list[str] = []
+        if match.get("source_name"):
+            caption_bits.append(str(match["source_name"]))
+        if match.get("career_ops_score"):
+            caption_bits.append(f"Career-Ops score: {match['career_ops_score']}")
+        if match.get("jobspy_site"):
+            caption_bits.append(f"JobSpy: {match['jobspy_site']}")
+        if match.get("url"):
+            caption_bits.append(str(match["url"]))
+        st.caption(" | ".join(caption_bits) or "No job URL available")
+
+        details_bits: list[str] = []
+        if match.get("company"):
+            details_bits.append(f"Company: {match['company']}")
+        elif match.get("career_ops_company"):
+            details_bits.append(f"Company: {match['career_ops_company']}")
+        if match.get("location"):
+            details_bits.append(f"Location: {match['location']}")
+        if match.get("jobspy_search_scope"):
+            details_bits.append(f"Scope: {match['jobspy_search_scope']}")
+        if match.get("jobspy_date_posted"):
+            details_bits.append(f"Posted: {match['jobspy_date_posted']}")
+        if match.get("jobspy_job_type"):
+            details_bits.append(f"Type: {match['jobspy_job_type']}")
+        if match.get("jobspy_is_remote"):
+            details_bits.append("Remote")
+        if match.get("jobspy_salary"):
+            details_bits.append(f"Salary: {match['jobspy_salary']}")
+        if match.get("jobspy_company_industry"):
+            details_bits.append(f"Industry: {match['jobspy_company_industry']}")
+        if match.get("jobspy_startup_score"):
+            details_bits.append(f"Startup bias: {match['jobspy_startup_score']}")
+        if match.get("jobspy_visa_support_label"):
+            details_bits.append(f"Visa: {match['jobspy_visa_support_label']}")
+        if match.get("jobspy_sponsorship_filter_exempt"):
+            details_bits.append("Internship exempt")
+        if match.get("career_ops_status"):
+            details_bits.append(f"Status: {match['career_ops_status']}")
+        if details_bits:
+            st.write("Details: " + " | ".join(details_bits))
+        if match.get("jobspy_startup_signals"):
+            st.write(f"Startup signals: {match['jobspy_startup_signals']}")
+        if match.get("jobspy_visa_support_signals"):
+            st.write(f"Visa signals: {match['jobspy_visa_support_signals']}")
+
+        if match.get("career_ops_report_path"):
+            st.write(f"Career-Ops report: {match['career_ops_report_path']}")
+        if match.get("career_ops_notes"):
+            st.write(f"Notes: {match['career_ops_notes']}")
+
+        if st.button("Use This JD in Resume Tailor", key=f"use_job_{button_prefix}_{index}"):
+            load_match_into_resume(match)
+
+        with st.expander("Preview crawled JD"):
+            st.text(str(match.get("jd_text", ""))[:5000] or "No JD text available yet.")
+
+
 def render_resume_tab() -> None:
     st.caption("Paste a JD, generate a one-page resume based on your fixed template.")
     jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...", key="jd_input")
@@ -323,6 +462,155 @@ def render_resume_tab() -> None:
             st.error(f"Generation failed: {exc}")
 
 
+def render_jobspy_tab() -> None:
+    st.caption("Search with JobSpy, prioritize Tucson ZIP 85716, widen to North America, then send a role into Resume Tailor.")
+    if not jobspy_available():
+        st.warning(jobspy_install_hint())
+
+    load_config()
+    default_scope_text = os.getenv("JOBSPY_SCOPE_TEXT", "").strip() or DEFAULT_JOBSPY_SCOPE_TEXT
+    configured_sites = [site.strip().lower() for site in os.getenv("JOBSPY_SITES", "").split(",") if site.strip()]
+    default_sites = configured_sites or list(DEFAULT_JOBSPY_SITES)
+    prefer_startups_default = os.getenv("JOBSPY_PREFER_STARTUPS", "true").strip().lower() in {"1", "true", "yes", "on"}
+    require_sponsorship_default = os.getenv("JOBSPY_REQUIRE_SPONSORSHIP", "true").strip().lower() in {"1", "true", "yes", "on"}
+
+    with st.form("jobspy_search_form"):
+        search_term = st.text_input(
+            "Search term",
+            value=st.session_state.get("jobspy_search_term", ""),
+            placeholder="e.g. data analyst OR business analyst OR product analyst",
+        )
+        scope_text = st.text_area(
+            "Search scopes",
+            value=st.session_state.get("jobspy_scope_text", default_scope_text),
+            height=120,
+            help=(
+                "One scope per line. Use `Location | Country`. Defaults prioritize Tucson, AZ 85716 first, "
+                "then USA, Canada, and Mexico."
+            ),
+        )
+
+        controls_col1, controls_col2, controls_col3 = st.columns(3)
+        with controls_col1:
+            site_names = st.multiselect(
+                "Sources",
+                options=list(SUPPORTED_JOBSPY_SITES),
+                default=default_sites,
+            )
+            results_wanted = int(
+                st.number_input(
+                    "Results per site",
+                    min_value=5,
+                    max_value=50,
+                    value=15,
+                    step=5,
+                )
+            )
+        with controls_col2:
+            hours_old_label = st.selectbox(
+                "Recency",
+                options=["Any time", "24 hours", "72 hours", "7 days", "30 days"],
+                index=2,
+            )
+            job_type_label = st.selectbox(
+                "Job type",
+                options=["Any", "fulltime", "internship", "contract", "parttime"],
+                index=0,
+            )
+        with controls_col3:
+            remote_only = st.checkbox("Remote only", value=False)
+            easy_apply_only = st.checkbox("Easy apply only", value=False)
+            prefer_startups = st.checkbox("Prefer startups", value=prefer_startups_default)
+            require_sponsorship = st.checkbox("Need sponsorship for non-internships", value=require_sponsorship_default)
+            linkedin_fetch_description = st.checkbox("Fetch LinkedIn descriptions", value=True)
+
+        search_jobspy_button = st.form_submit_button("Search JobSpy", type="primary")
+
+    if search_jobspy_button:
+        st.session_state["jobspy_search_term"] = search_term
+        st.session_state["jobspy_scope_text"] = scope_text
+
+        if not search_term.strip():
+            st.error("Please add a search term first.")
+        elif not site_names:
+            st.error("Choose at least one JobSpy source.")
+        else:
+            hours_old = {
+                "Any time": None,
+                "24 hours": 24,
+                "72 hours": 72,
+                "7 days": 168,
+                "30 days": 720,
+            }[hours_old_label]
+            job_type = None if job_type_label == "Any" else job_type_label
+
+            try:
+                with st.spinner("Searching JobSpy across your prioritized North America scopes..."):
+                    opportunities, bridge_warnings = search_jobspy_jobs(
+                        search_term=search_term.strip(),
+                        scope_text=scope_text,
+                        site_names=site_names,
+                        results_wanted=results_wanted,
+                        hours_old=hours_old,
+                        job_type=job_type,
+                        remote_only=remote_only,
+                        easy_apply_only=easy_apply_only,
+                        linkedin_fetch_description=linkedin_fetch_description,
+                        prefer_startups=prefer_startups,
+                        require_sponsorship=require_sponsorship,
+                    )
+
+                merged_matches: list[dict[str, Any]] = []
+                for item in opportunities:
+                    merged_matches.append(
+                        {
+                            "rank": 0,
+                            "title": item.title or "Untitled role",
+                            "url": item.url or item.direct_url,
+                            "jd_text": item.jd_text,
+                            "source_name": "JobSpy",
+                            "company": item.company,
+                            "location": item.location,
+                            "jobspy_site": item.site,
+                            "jobspy_search_scope": item.search_scope,
+                            "jobspy_date_posted": item.date_posted,
+                            "jobspy_is_remote": item.is_remote,
+                            "jobspy_job_type": item.job_type,
+                            "jobspy_salary": item.salary_text,
+                            "jobspy_board_url": item.board_url,
+                            "jobspy_direct_url": item.direct_url,
+                            "jobspy_company_industry": item.company_industry,
+                            "jobspy_startup_score": item.startup_score,
+                            "jobspy_startup_signals": item.startup_signals,
+                            "jobspy_visa_support_label": item.visa_support_label,
+                            "jobspy_visa_support_signals": item.visa_support_signals,
+                            "jobspy_sponsorship_filter_exempt": item.sponsorship_filter_exempt,
+                        }
+                    )
+
+                assign_match_ranks(merged_matches)
+                st.session_state["jobspy_matches"] = merged_matches
+                st.session_state["jobspy_warnings"] = bridge_warnings
+
+                if merged_matches:
+                    st.success(
+                        f"Loaded {len(merged_matches)} JobSpy roles with Tucson ZIP 85716 prioritized first."
+                    )
+                else:
+                    st.warning("JobSpy did not return any roles for this search yet.")
+            except Exception as exc:
+                st.error(f"JobSpy search failed: {exc}")
+
+    render_match_list(
+        matches=st.session_state.get("jobspy_matches", []),
+        warnings=st.session_state.get("jobspy_warnings", []),
+        title="JobSpy Matches",
+        download_label="Download JobSpy Roles JSON",
+        download_file_name="jobspy_roles.json",
+        button_prefix="jobspy",
+    )
+
+
 def render_career_ops_tab() -> None:
     st.caption("Use Career-Ops to scan portals, keep scored roles, then send one role into Resume Tailor.")
     load_config()
@@ -397,6 +685,8 @@ def render_career_ops_tab() -> None:
                             "title": item.title,
                             "url": item.url,
                             "jd_text": item.jd_text,
+                            "source_name": "Career-Ops",
+                            "company": item.company,
                         }
 
                         match["career_ops_score"] = item.score_raw or (f"{item.score_value:.2f}/5" if item.score_value else "")
@@ -415,11 +705,10 @@ def render_career_ops_tab() -> None:
                         ),
                         reverse=True,
                     )
-                    for index, match in enumerate(merged_matches, start=1):
-                        match["rank"] = index
+                    assign_match_ranks(merged_matches)
 
-                st.session_state["job_matches"] = merged_matches
-                st.session_state["job_match_warnings"] = bridge_warnings
+                st.session_state["career_ops_matches"] = merged_matches
+                st.session_state["career_ops_warnings"] = bridge_warnings
                 st.success(
                     f"Imported {len(merged_matches)} high-score career-ops roles "
                     f"(threshold {minimum_career_ops_score:.1f}/5)."
@@ -427,69 +716,14 @@ def render_career_ops_tab() -> None:
             except Exception as exc:
                 st.error(f"Career-ops import failed: {exc}")
 
-    matches = st.session_state.get("job_matches", [])
-    warnings = st.session_state.get("job_match_warnings", [])
-
-    if warnings:
-        with st.expander("Crawl warnings"):
-            for warning in warnings:
-                st.write(f"- {warning}")
-
-    if matches:
-        st.subheader("High-Score Roles")
-        st.download_button(
-            "Download Career-Ops Roles JSON",
-            json.dumps(matches, indent=2, ensure_ascii=False),
-            file_name="career_ops_roles.json",
-            mime="application/json",
-        )
-        for index, match in enumerate(matches):
-            st.markdown(f"### {match['rank']}. {match['title']}")
-            score_bits = []
-            if match.get("career_ops_score"):
-                score_bits.append(f"Career-Ops score: {match['career_ops_score']}")
-            if match.get("url"):
-                score_bits.append(str(match["url"]))
-            st.caption(" | ".join(score_bits) or "No job URL available")
-            if match.get("career_ops_company") or match.get("career_ops_status"):
-                st.write(
-                    "Career-ops: "
-                    + " | ".join(
-                        part
-                        for part in [
-                            str(match.get("career_ops_company", "")).strip(),
-                            str(match.get("career_ops_status", "")).strip(),
-                        ]
-                        if part
-                    )
-                )
-            if match.get("career_ops_report_path"):
-                st.write(f"Career-ops report: {match['career_ops_report_path']}")
-            if match.get("career_ops_notes"):
-                st.write(f"Notes: {match['career_ops_notes']}")
-            button_key = f"use_job_{index}"
-            if st.button("Use This JD in Resume Tailor", key=button_key):
-                if match.get("jd_text"):
-                    st.session_state["jd_input"] = match["jd_text"]
-                    st.success("Loaded this job description into the Resume Tailor tab.")
-                elif match.get("url"):
-                    try:
-                        with st.spinner("Fetching this job description before handing it to Resume Tailor..."):
-                            fetched_title, fetched_jd = fetch_job_description(match["url"])
-                        if fetched_jd:
-                            st.session_state["jd_input"] = fetched_jd
-                            match["jd_text"] = fetched_jd
-                            if not match.get("title") and fetched_title:
-                                match["title"] = fetched_title
-                            st.success("Fetched and loaded this job description into the Resume Tailor tab.")
-                        else:
-                            st.error("I could not recover JD text for this role yet.")
-                    except Exception as exc:
-                        st.error(f"Could not fetch the job description: {exc}")
-                else:
-                    st.error("This entry does not have a job URL or saved JD text yet.")
-            with st.expander("Preview crawled JD"):
-                st.text(str(match.get("jd_text", ""))[:5000] or "No JD text available yet.")
+    render_match_list(
+        matches=st.session_state.get("career_ops_matches", []),
+        warnings=st.session_state.get("career_ops_warnings", []),
+        title="High-Score Roles",
+        download_label="Download Career-Ops Roles JSON",
+        download_file_name="career_ops_roles.json",
+        button_prefix="career_ops",
+    )
 
 
 def main() -> None:
@@ -497,9 +731,11 @@ def main() -> None:
     st.title("Resume Tailor")
     sync_jd_from_query_params()
 
-    resume_tab, career_ops_tab = st.tabs(["Resume Tailor", "Career-Ops"])
+    resume_tab, jobspy_tab, career_ops_tab = st.tabs(["Resume Tailor", "JobSpy", "Career-Ops"])
     with resume_tab:
         render_resume_tab()
+    with jobspy_tab:
+        render_jobspy_tab()
     with career_ops_tab:
         render_career_ops_tab()
 
