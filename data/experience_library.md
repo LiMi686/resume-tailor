@@ -30,7 +30,7 @@ Bullets source:
 - Designed and implemented a contamination injection pipeline that overlays surgical artefacts such as blood, smoke, and lens blur onto clean endoscopy images.
 - Combined code-based image processing methods with AI image generation tools to produce realistic contaminated medical images.
 - Contributed to computer vision research workflows involving synthetic data generation and image augmentation for medical imaging applications.
-Keywords: computer vision, artificial intelligence, medical imaging, image dataset, synthetic data, image augmentation, pipeline development, model training support
+Keywords: computer vision, artificial intelligence, medical imaging, image dataset, synthetic data, image augmentation, pipeline development, model training support, AI workflow, image processing, data generation pipeline
 
 ## University of Arizona Cancer Center — Student Researcher
 Period: Sep 2024 – Mar 2025
@@ -42,7 +42,7 @@ Bullets source:
 - Improved classification efficiency of a given dataset by 10% through structured analysis and method refinement.
 - Applied K-means clustering to cancer cell reversal ratio values, segmenting samples into stable and significant change groups.
 - Performed subgroup-level outlier detection within the significant change group to identify samples with superior reversal effects.
-Keywords: data cleaning, data visualization, clustering, k-means, outlier detection, reproducible analysis, candidate selection, classification efficiency, statistical analysis
+Keywords: data cleaning, data visualization, clustering, k-means, outlier detection, reproducible analysis, candidate selection, classification efficiency, statistical analysis, exploratory analysis, analytical workflow
 
 ## Usher Technologies Inc — Data Science Intern
 Period: Jul 2023 – Nov 2023
@@ -54,4 +54,4 @@ Bullets source:
 - Achieved a 15% reduction in labor costs through a more efficient damage assessment approach.
 - Validated analytical results against on-site inspection findings, showing strong alignment between model-based assessment and real-world observations.
 - Supported building condition evaluation by using sensor-based evidence to determine whether a structure had likely remained undamaged after a seismic event.
-Keywords: machine learning, statistical modeling, Python, sensor data, anomaly detection, deviation analysis, forecasting, predictive analytics, structural monitoring, validation
+Keywords: machine learning, statistical modeling, Python, sensor data, anomaly detection, deviation analysis, forecasting, predictive analytics, structural monitoring, validation, analytical modeling, model evaluation

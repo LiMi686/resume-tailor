@@ -14,3 +14,13 @@
 - If the source material does not support more detail, keep the content shorter rather than adding filler.
 - Return concise bullets that still fit the one-page layout.
 - English JD -> English resume. Chinese JD -> Chinese resume if the template supports it.
+- If the JD emphasizes a verified candidate skill, try to align the selected work experience bullets and project bullets toward that theme when the source material genuinely supports it.
+- When relevant, surface JD-aligned tools, frameworks, and methods from the candidate's real experience or projects instead of relying only on the Skills section.
+- Improve keyword alignment through truthful emphasis, reordering, and wording choices, but do not exaggerate, fabricate, or overstate depth of experience.
+- Treat the following as verified candidate skills that may be used in the skills section when relevant to the JD: PyTorch, TensorFlow, NumPy, Pandas, scikit-learn, LangChain, LlamaIndex, Azure, AWS, Power BI, Excel.
+- Include these skills selectively based on JD relevance, available resume space, and support from the candidate's experience or project library.
+- Do not include every verified skill by default.
+- Prefer placing NumPy and Pandas under Languages & Analytics when selected.
+- Prefer placing PyTorch, TensorFlow, scikit-learn, LangChain, and LlamaIndex under Data Stack & ML Frameworks when selected.
+- Prefer placing Azure and AWS under Data Stack & ML Frameworks when selected.
+- Prefer placing Power BI and Excel under Languages & Analytics when selected.

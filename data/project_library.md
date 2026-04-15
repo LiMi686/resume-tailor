@@ -6,7 +6,7 @@
 - Created interactive geographic heatmaps using ggplot2 and Shiny to show pandemic intensity and regional distribution.
 - Applied web scraping in R to collect early-stage COVID-19 news frequency data for media-versus-infection trend analysis.
 - Compared COVID-19 news volume with new case counts, identifying an observed negative correlation.
-Keywords: data visualization, R, ggplot2, Shiny, web scraping, public health analytics, comparative analysis, geospatial analysis
+Keywords: data visualization, R, ggplot2, Shiny, web scraping, public health analytics, comparative analysis, geospatial analysis, dashboarding, reporting
 
 ## Airbnb Relational Database Design — MySQL
 - Built an ER model for Airbnb marketplace operations and translated it into a normalized MySQL database schema.
@@ -23,7 +23,7 @@ Keywords: MySQL, SQL, relational database, ER model, schema design, normalizatio
 - Engineered features including delivery time, estimated delay, approval delay, and freight-to-price ratio.
 - Built customer-level and order-level aggregated features.
 - Applied RFM analysis and K-Means clustering to identify four customer segments.
-Keywords: Snowflake, Python, SQL, SQLAlchemy, cloud analytics, customer segmentation, RFM analysis, K-Means clustering, feature engineering, e-commerce analytics
+Keywords: Snowflake, Python, SQL, SQLAlchemy, cloud analytics, customer segmentation, RFM analysis, K-Means clustering, feature engineering, e-commerce analytics, analytical pipeline, cloud data workflow
 
 ## Online Retail Association Rule
 - Cleaned transaction data by removing missing values, canceled invoices, non-numeric stock codes, and invalid quantity records.
@@ -39,7 +39,7 @@ Keywords: association rule mining, Apriori, market basket analysis, retail analy
 - Loaded training and validation data from CSV files using the datasets library and transformed label columns into multi-label targets.
 - Built a feedforward neural network in Keras with dense layers, batch normalization, dropout, and L2 regularization.
 - Trained the model with Adam optimization and monitored accuracy, precision, recall, and micro-F1.
-Keywords: multi-label classification, NLP, Python, Hugging Face, Transformers, Keras, TensorFlow, text classification, neural network
+Keywords: multi-label classification, NLP, Python, Hugging Face, Transformers, Keras, TensorFlow, text classification, neural network, deep learning, model training, classification pipeline
 
 ## Commonsense Reasoning with Pre-trained Language Models
 - Developed a binary classification pipeline for ComVE Subtask A using RoBERTa-based sequence classification.
@@ -47,4 +47,4 @@ Keywords: multi-label classification, NLP, Python, Hugging Face, Transformers, K
 - Implemented a sequence-to-sequence generation pipeline for Subtask C using BART to generate plausible commonsense explanations.
 - Used Hugging Face datasets and tokenizers to preprocess inputs across sentence-pair, multi-option, and text-generation formats.
 - Configured reproducible training workflows with deterministic seeds and Trainer / Seq2SeqTrainer APIs.
-Keywords: NLP, transformer models, Hugging Face, RoBERTa, BART, sequence classification, multiple-choice classification, text generation
+Keywords: NLP, transformer models, Hugging Face, RoBERTa, BART, sequence classification, multiple-choice classification, text generation, LLM, language modeling, reasoning pipeline

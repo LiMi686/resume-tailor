@@ -1,5 +1,6 @@
 .env
 .venv/
+.venv311/
 .local/
 .texlive/
 __pycache__/

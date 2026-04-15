@@ -70,6 +70,9 @@ def get_reasoning_config() -> dict[str, str] | None:
     valid_efforts = {"none", "minimal", "low", "medium", "high", "xhigh"}
     effort = os.getenv("OPENAI_REASONING_EFFORT", "").strip().lower()
     if effort in valid_efforts:
+        model = get_model().lower()
+        if effort == "minimal" and model == "gpt-5.4-mini":
+            return {"effort": "low"}
         return {"effort": effort}
 
     # Backward-compatible fallback for old configs like `gpt-5.4-thinking`.
@@ -213,6 +216,10 @@ def maybe_compress(payload: ResumePayload) -> tuple[ResumePayload, dict[str, int
 
 
 def sync_jd_from_query_params() -> None:
+    pending_jd = st.session_state.pop("_pending_jd_input", None)
+    if pending_jd is not None:
+        st.session_state["jd_input"] = pending_jd
+
     query_jd = st.query_params.get("jd", "")
     previous_query_jd = st.session_state.get("_last_query_jd", "")
 
@@ -224,6 +231,12 @@ def sync_jd_from_query_params() -> None:
     st.session_state["_last_query_jd"] = query_jd
 
 
+def queue_match_for_resume(jd_text: str, success_message: str) -> None:
+    st.session_state["_pending_jd_input"] = jd_text
+    st.session_state["_resume_load_message"] = success_message
+    st.rerun()
+
+
 def assign_match_ranks(matches: list[dict[str, Any]]) -> None:
     for index, match in enumerate(matches, start=1):
         match["rank"] = index
@@ -231,8 +244,10 @@ def assign_match_ranks(matches: list[dict[str, Any]]) -> None:
 
 def load_match_into_resume(match: dict[str, Any]) -> None:
     if match.get("jd_text"):
-        st.session_state["jd_input"] = str(match["jd_text"])
-        st.success("Loaded this job description into the Resume Tailor tab.")
+        queue_match_for_resume(
+            str(match["jd_text"]),
+            "Loaded this job description into the Resume Tailor tab.",
+        )
         return
 
     candidate_urls: list[str] = []
@@ -251,12 +266,14 @@ def load_match_into_resume(match: dict[str, Any]) -> None:
                 with st.spinner(spinner_text):
                     fetched_title, fetched_jd = fetch_job_description(candidate_url)
                 if fetched_jd:
-                    st.session_state["jd_input"] = fetched_jd
                     match["jd_text"] = fetched_jd
                     match["url"] = candidate_url
                     if not match.get("title") and fetched_title:
                         match["title"] = fetched_title
-                    st.success("Fetched and loaded this job description into the Resume Tailor tab.")
+                    queue_match_for_resume(
+                        fetched_jd,
+                        "Fetched and loaded this job description into the Resume Tailor tab.",
+                    )
                     return
             except Exception as exc:
                 last_error = str(exc)
@@ -357,6 +374,10 @@ def render_match_list(
 
 def render_resume_tab() -> None:
     st.caption("Paste a JD, generate a one-page resume based on your fixed template.")
+    resume_load_message = st.session_state.pop("_resume_load_message", "")
+    if resume_load_message:
+        st.success(resume_load_message)
+
     jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...", key="jd_input")
     file_stem = st.text_input("Output file name", value="tailored_resume")
 
