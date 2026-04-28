@@ -1,28 +1,27 @@
 # Project Library
 
 ## Pandemic Visualization & Analysis by R
-- Cleaned, preprocessed, and aggregated WHO pandemic datasets for comparative analysis.
-- Built stream graphs to visualize trends in total cases and mortality over time across three diseases.
-- Created interactive geographic heatmaps using ggplot2 and Shiny to show pandemic intensity and regional distribution.
-- Applied web scraping in R to collect early-stage COVID-19 news frequency data for media-versus-infection trend analysis.
-- Compared COVID-19 news volume with new case counts, identifying an observed negative correlation.
+- Developed an R-based analytics project to compare spread patterns, mortality trends, and geographic distribution across three infectious diseases.
+- Cleaned and integrated WHO datasets, then built stream graphs and Shiny-based geospatial visualizations using ggplot2 for clearer cross-disease and cross-region analysis.
+- Scraped early COVID-19 news-frequency data in R and compared media attention trends with reported case growth.
+- Identified differences in disease trajectories across time and geography, and observed periods where news coverage and outbreak dynamics did not move in sync.
 Keywords: data visualization, R, ggplot2, Shiny, web scraping, public health analytics, comparative analysis, geospatial analysis, dashboarding, reporting
 
 ## Airbnb Relational Database Design — MySQL
-- Built an ER model for Airbnb marketplace operations and translated it into a normalized MySQL database schema.
-- Implemented 20 SQL tables with primary and foreign keys to preserve relational integrity.
-- Defined 10 business-oriented analytical scenarios and wrote SQL queries to generate revenue, risk, and performance insights.
-- Developed multi-table SQL logic using INNER JOIN and LEFT OUTER JOIN.
-- Used single-row and multiple-row subqueries, aggregation, UNION, NOT IN, and NOT EXISTS to answer business questions.
+- Designed a normalized MySQL database for Airbnb-style marketplace operations to support analysis of bookings, listings, hosts, and guests.
+- Translated an ER model into a 20-table relational schema with primary and foreign keys to maintain integrity across interconnected entities.
+- Developed 10 business-oriented SQL analysis scenarios focused on revenue, operational risk, and marketplace performance.
+- Wrote multi-table SQL queries using joins, subqueries, set operations, and aggregations to answer reporting and decision-support questions.
 Keywords: MySQL, SQL, relational database, ER model, schema design, normalization, business queries, joins, subqueries, aggregation, data modeling
 
 ## Cloud-Based E-Commerce Customer Analytics
-- Created an OLIST database in Snowflake and worked with eight interconnected e-commerce tables.
-- Connected Snowflake to Jupyter Notebook using SQLAlchemy and Python to fetch, clean, and merge data.
-- Performed data cleaning by removing duplicates and handling missing values.
-- Engineered features including delivery time, estimated delay, approval delay, and freight-to-price ratio.
-- Built customer-level and order-level aggregated features.
-- Applied RFM analysis and K-Means clustering to identify four customer segments.
+- Built a cloud-based customer analytics pipeline in Snowflake, Python, and SQLAlchemy using the Brazilian Olist e-commerce dataset, integrating 8 interconnected tables across orders, customers, products, sellers, payments, reviews, and geolocation.
+- Cleaned and merged multi-table transactional data into a unified analytical dataset, removing duplicates, handling null values, and preserving join integrity for downstream unsupervised learning.
+- Engineered temporal, ratio-based, customer-level, and order-level features, including delivery time, estimated delay, approval delay, freight-to-price ratio, average order value, number of orders, review score, and product diversity.
+- Applied RFM analysis to segment 96,461 customers, quantify recency/frequency/monetary behavior, and identify common customer patterns, including a large recent-but-low-frequency/low-monetary segment and high-value customers with stronger retention potential.
+- Prepared clustering inputs with StandardScaler for numerical features and OneHotEncoder for categorical features, then used the elbow method to select 4 clusters for K-Means segmentation.
+- Identified four distinct customer profiles, including Budget-Conscious & Prompt Delivery, Satisfied Medium Spenders, High-Value, Delayed Delivery, and High Average Order Value customers; findings showed that the high-value delayed-delivery segment had the longest delivery times and lowest review scores, indicating a clear operational improvement opportunity.
+- Produced exploratory visualizations showing heavily positive-skewed review scores, right-skewed average order values, dominant credit-card usage, and strong order concentration in São Paulo and several major Brazilian states.
 Keywords: Snowflake, Python, SQL, SQLAlchemy, cloud analytics, customer segmentation, RFM analysis, K-Means clustering, feature engineering, e-commerce analytics, analytical pipeline, cloud data workflow
 
 ## Online Retail Association Rule

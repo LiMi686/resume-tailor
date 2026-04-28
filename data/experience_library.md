@@ -20,7 +20,7 @@ Bullets source:
 - Conducted targeted information retrieval in Nexis Uni to efficiently source case law, legal references, and academic materials.
 - Maintained structured information management in ALMA, supporting accurate cataloging and resource organization.
 - Tracked and logged service inquiries in LibAnswers, reinforcing data entry accuracy, documentation consistency, and structured problem-solving.
-Keywords: data management, information retrieval, documentation, cataloging, record accuracy, classification, communication, customer support, resource organization, data entry, research support, problem solving
+Keywords: data management, information retrieval, documentation, cataloging, record accuracy, classification, communication, customer support, resource organization, data entry, research support, problem solving, structured information management
 
 ## University of Arizona College of Engineering — Graduate Research Assistant
 Period: May 2025 – Aug 2025
@@ -29,7 +29,8 @@ Bullets source:
 - Created an image dataset for AI-based medical model recognition tasks, including generation of 300+ laparoscopic surgery images.
 - Designed and implemented a contamination injection pipeline that overlays surgical artefacts such as blood, smoke, and lens blur onto clean endoscopy images.
 - Combined code-based image processing methods with AI image generation tools to produce realistic contaminated medical images.
-- Contributed to computer vision research workflows involving synthetic data generation and image augmentation for medical imaging applications.
+- Developed synthetic medical imaging data workflows using image augmentation and contamination simulation techniques.
+- Built data generation and augmentation workflows to expand training data for medical computer vision tasks.
 Keywords: computer vision, artificial intelligence, medical imaging, image dataset, synthetic data, image augmentation, pipeline development, model training support, AI workflow, image processing, data generation pipeline
 
 ## University of Arizona Cancer Center — Student Researcher
