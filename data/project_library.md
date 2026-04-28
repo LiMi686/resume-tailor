@@ -1,49 +1,82 @@
 # Project Library
 
+## Community Food Bank Training — Dropout Risk, Support Platform | HackArizona 1st Place
+- Won 1st place at HackArizona competing in the Southern Arizona Social Innovation Track (Community Food Bank of Southern Arizona Challenge), building a production-ready platform to reduce the ~33% dropout rate in the Food Bank's culinary workforce training program by detecting early-warning risk signals before participants disengage.
+- Designed a full three-layer system architecture: a participant-facing engagement app, a Python/FastAPI risk-scoring backend (port 7000), and an AI chatbot backend (port 7001), all connected to a live MongoDB Atlas cloud database with 11 collections tracking participants, risk scores, weekly check-ins, interventions, and attendance records.
+- Engineered a logistic regression dropout risk model with SHAP explainability that scores every participant weekly across 7 behavioral signals — consecutive absences, SMS non-response patterns, housing stability changes, financial stress indicators, motivation fluctuations, childcare load shifts, and transportation barriers — outputting a 0–100% probability that drives a real-time coordinator watchlist sorted by risk level.
+- Built an AI chatbot powered by Claude (claude-sonnet-4-6 via Anthropic SDK) that performs real-time distress keyword detection ("I can't do this," "lost my ride") and generates personalized encouragement anchored to each participant's individual baseline goals; privacy-first design enforces role-based access control so coordinators cannot read participant chat histories.
+- Developed the full-stack web application using Node.js, Express.js, EJS templating, and CSS with Passport.js authentication (local strategy, bcrypt hashing, express-session) and role-based routing that separates participant and coordinator views at both the UI and API layers.
+- Implemented a coordinator intervention dashboard with real-time risk watchlist, direct phone number integration from the database, timestamped intervention logging (SMS nudges, resource cards, phone calls, referrals), and full event traceability linking each action to its triggering risk condition.
+- Added Duolingo-style gamification — XP points, streak tracking, leaderboard — to the participant interface to sustain engagement between check-ins and reduce passive dropout.
+- Architected for nonprofit economics: open-source stack with no proprietary licensing, MongoDB Atlas free tier, FastAPI deployable on a $5/month VPS, and pay-per-token Claude API pricing that makes per-interaction cost negligible at program cohort scale; centralized MongoDB schema enables institutional memory and cohort-to-cohort program improvement analytics.
+Keywords: HackArizona, hackathon, 1st place, social innovation, nonprofit tech, dropout prediction, risk scoring, logistic regression, SHAP, explainability, machine learning, scikit-learn, Python, FastAPI, REST API, MongoDB, MongoDB Atlas, NoSQL, database design, Node.js, Express.js, EJS, full-stack web development, Passport.js, authentication, bcrypt, role-based access control, RBAC, LLM, Claude, Anthropic SDK, AI chatbot, conversational AI, distress detection, keyword detection, gamification, XP system, streak tracking, leaderboard, coordinator dashboard, intervention tracking, real-time analytics, backend analytics, workforce training, community impact, social good, system architecture, cloud database, scalability
+
+## Arizona List Donor Intelligence — PostgreSQL Analytics & Nonprofit Data Visualization
+- Structured all analysis around person-level counts rather than transaction records — distinguishing 7,769 unique donors from 53,020 raw contribution rows — to prevent overcounting and establish a reliable baseline across 22 years of PostgreSQL data.
+- Reconstructed Leadership Council membership without a dedicated database field by cross-referencing three separate signals: activist pin codes (2019–2020), contribution source codes containing "LC," and online action source codes; the multi-source approach identified 386 members that relying on any single field alone would have missed.
+- Built a four-step contact funnel across 79,830 person records — filtering by verified mailing address, no email on file, and no mail opt-out — to land on 16,440 actionable direct-mail contacts and expose an additional 2,900 who were unreachable through any proactive channel.
+- Designed a lapsed donor scoring model using consecutive-streak detection logic: required both 3+ giving years and a 3-year unbroken streak to separate habitual donors from occasional ones, then applied a 1–5 year lapse window and a $250+ annual giving threshold; surfaced 352 qualified candidates and tiered them by value × recency into four priority groups.
+- Built year-over-year time series with donation amount and donation count tracked on separate axes, identifying 2024 as the record-dollar year ($710K) while 2025 saw more individual donations but lower total revenue — a divergence invisible from either metric alone.
+- Produced national geospatial visualizations using geopandas and Census TIGER/Line shapefiles, mapping 925 donor ZIP codes with log-scaled bubble sizing; generated dual versions of the state trend chart — with and without Arizona — so that year-over-year movement in other states wasn't visually buried under Arizona's scale.
+- Built all queries to be reusable: the postcard outreach script accepts a configurable start date so the same workflow auto-generates a fresh prospect list each quarter without modification.
+Keywords: PostgreSQL, SQL, SQLAlchemy, Python, pandas, matplotlib, geopandas, pgeocode, geospatial visualization, geospatial mapping, choropleth map, bubble map, donor analytics, lapsed donor segmentation, donor retention, cohort analysis, consecutive streak detection, window functions, funnel analysis, multi-source reconciliation, time series analysis, nonprofit analytics, nonprofit CRM, SQL aggregation, data quality, repeatable query, export automation, stakeholder reporting
+
 ## Pandemic Visualization & Analysis by R
-- Developed an R-based analytics project to compare spread patterns, mortality trends, and geographic distribution across three infectious diseases.
-- Cleaned and integrated WHO datasets, then built stream graphs and Shiny-based geospatial visualizations using ggplot2 for clearer cross-disease and cross-region analysis.
-- Scraped early COVID-19 news-frequency data in R and compared media attention trends with reported case growth.
-- Identified differences in disease trajectories across time and geography, and observed periods where news coverage and outbreak dynamics did not move in sync.
-Keywords: data visualization, R, ggplot2, Shiny, web scraping, public health analytics, comparative analysis, geospatial analysis, dashboarding, reporting
+- Integrated WHO datasets across 3 infectious diseases and built stream graphs and Shiny geospatial visualizations using ggplot2, surfacing cross-disease spread patterns and mortality trends that single-disease analyses could not reveal.
+- Scraped COVID-19 news-frequency data using R and overlaid it against reported case growth rates, identifying periods where media coverage diverged from outbreak trajectory — showing that public attention did not consistently track epidemic dynamics.
+- Delivered an interactive Shiny dashboard with dynamic filtering by disease, region, and time window, enabling exploratory analysis across dimensions without generating separate static charts for each combination.
+Keywords: R, ggplot2, Shiny, web scraping, data visualization, public health analytics, interactive dashboard, geospatial analysis, time series, comparative analysis, WHO data, epidemiology
 
 ## Airbnb Relational Database Design — MySQL
-- Designed a normalized MySQL database for Airbnb-style marketplace operations to support analysis of bookings, listings, hosts, and guests.
-- Translated an ER model into a 20-table relational schema with primary and foreign keys to maintain integrity across interconnected entities.
-- Developed 10 business-oriented SQL analysis scenarios focused on revenue, operational risk, and marketplace performance.
-- Wrote multi-table SQL queries using joins, subqueries, set operations, and aggregations to answer reporting and decision-support questions.
-Keywords: MySQL, SQL, relational database, ER model, schema design, normalization, business queries, joins, subqueries, aggregation, data modeling
+- Translated an Airbnb-style marketplace ER model into a normalized 20-table MySQL schema with primary and foreign keys, ensuring referential integrity across bookings, listings, hosts, guests, and reviews.
+- Wrote 10 business-oriented SQL queries covering revenue analysis, host performance, occupancy rates, and market risk, using multi-table joins, subqueries, set operations, and window functions to answer decision-support questions across interconnected entities.
+Keywords: MySQL, SQL, relational database, ER model, schema design, normalization, data modeling, joins, subqueries, window functions, aggregation, business intelligence, database design
 
 ## Cloud-Based E-Commerce Customer Analytics
-- Built a cloud-based customer analytics pipeline in Snowflake, Python, and SQLAlchemy using the Brazilian Olist e-commerce dataset, integrating 8 interconnected tables across orders, customers, products, sellers, payments, reviews, and geolocation.
-- Cleaned and merged multi-table transactional data into a unified analytical dataset, removing duplicates, handling null values, and preserving join integrity for downstream unsupervised learning.
-- Engineered temporal, ratio-based, customer-level, and order-level features, including delivery time, estimated delay, approval delay, freight-to-price ratio, average order value, number of orders, review score, and product diversity.
-- Applied RFM analysis to segment 96,461 customers, quantify recency/frequency/monetary behavior, and identify common customer patterns, including a large recent-but-low-frequency/low-monetary segment and high-value customers with stronger retention potential.
-- Prepared clustering inputs with StandardScaler for numerical features and OneHotEncoder for categorical features, then used the elbow method to select 4 clusters for K-Means segmentation.
-- Identified four distinct customer profiles, including Budget-Conscious & Prompt Delivery, Satisfied Medium Spenders, High-Value, Delayed Delivery, and High Average Order Value customers; findings showed that the high-value delayed-delivery segment had the longest delivery times and lowest review scores, indicating a clear operational improvement opportunity.
-- Produced exploratory visualizations showing heavily positive-skewed review scores, right-skewed average order values, dominant credit-card usage, and strong order concentration in São Paulo and several major Brazilian states.
-Keywords: Snowflake, Python, SQL, SQLAlchemy, cloud analytics, customer segmentation, RFM analysis, K-Means clustering, feature engineering, e-commerce analytics, analytical pipeline, cloud data workflow
+- Built an end-to-end cloud analytics pipeline in Snowflake and Python, integrating 8 Olist e-commerce tables (orders, customers, products, sellers, payments, reviews, geolocation) via SQLAlchemy into a single unified dataset of 96,461 customer records for downstream segmentation.
+- Engineered 10+ customer-level features — including delivery delay, freight-to-price ratio, average order value, review score, and product diversity — then applied RFM analysis to quantify recency, frequency, and monetary behavior before clustering.
+- Segmented 96,461 customers into 4 K-Means clusters using the elbow method; found that the high-value delayed-delivery segment had both the longest delivery times and lowest review scores, identifying a concrete operational improvement opportunity with the highest-spending customers.
+- Produced EDA visualizations revealing heavily skewed review distributions, right-skewed order values, dominant credit-card payment patterns, and geographic concentration in São Paulo — findings that directly informed feature selection and preprocessing decisions.
+Keywords: Snowflake, Python, SQL, SQLAlchemy, cloud analytics, customer segmentation, RFM analysis, K-Means clustering, feature engineering, e-commerce analytics, StandardScaler, OneHotEncoder, EDA, data pipeline, unsupervised learning
 
-## Online Retail Association Rule
-- Cleaned transaction data by removing missing values, canceled invoices, non-numeric stock codes, and invalid quantity records.
-- Filtered the dataset to focus on France.
-- Grouped transaction data by invoice and product description and transformed it into a binary basket matrix.
-- Applied the Apriori algorithm using mlxtend to identify frequent itemsets.
-- Generated association rules and evaluated product relationships using support, confidence, and lift.
-Keywords: association rule mining, Apriori, market basket analysis, retail analytics, recommendation systems, cross-sell analysis, support, confidence, lift
+## Online Retail Association Rule Mining
+- Preprocessed UK online retail transaction data — removing missing values, canceled orders, non-numeric stock codes, and invalid quantities — then filtered to France and encoded invoice-product pairs into a binary basket matrix for market basket analysis.
+- Applied the Apriori algorithm via mlxtend to surface frequent itemsets, then generated association rules evaluated by support, confidence, and lift — identifying product combinations most likely to be purchased together and providing a data-driven basis for cross-sell and bundling recommendations.
+Keywords: association rule mining, Apriori, mlxtend, market basket analysis, retail analytics, cross-sell analysis, support, confidence, lift, Python, data preprocessing, recommendation logic
+
+## NLP Preprocessing Pipeline & Semantic Text Similarity
+- Built a production-style spaCy NLP preprocessing pipeline on a web-scraped FAO food-prices article: customized the tokenizer to correctly segment slash-delimited compound terms that the default pipeline split incorrectly, then ran full annotation to produce a structured DataFrame with per-token lemma, POS tag, dependency relation, and named entity label — creating a reusable foundation for any downstream NLP task.
+- Benchmarked two similarity methods on 250 STS SemEval-2017 sentence pairs using pre-trained GloVe embeddings (400K-vocabulary, 300-dimensional): cosine similarity over averaged vectors reached Pearson r=0.688, while Word Mover's Distance — which optimizes token-level transport across the embedding space rather than averaging — reached Pearson r=0.739, a 7.4% relative improvement demonstrating that transport-based similarity better captures sentence-level semantics than centroid comparison.
+Keywords: NLP, spaCy, text preprocessing, tokenization, named entity recognition, NER, POS tagging, dependency parsing, lemmatization, BeautifulSoup, web scraping, word embeddings, GloVe, word2vec, semantic text similarity, cosine similarity, Word Mover's Distance, WMD, sentence similarity, STS, SemEval, Pearson correlation, Python, annotation pipeline
+
+## Offensive Language Detection — OffensEval SemEval-2019
+- Designed a two-subtask offensive language detection system on 13,240 training and 860 test tweets (OffensEval 2019): applied TF-IDF vectorization across 19,081 unique n-gram features and trained a Logistic Regression classifier, reaching 79% accuracy and binary F1=0.66 on the offensive vs. non-offensive detection task (SubTask A).
+- Extended the system to SubTask B (categorizing offensive posts as targeted vs. untargeted), incorporating TextBlob-derived sentiment polarity and subjectivity as auxiliary features and applying class balancing to counter a 4:1 label skew — lifting micro-F1 to 0.76 and macro-F1 to 0.62 on the held-out test set, showing that lightweight feature augmentation meaningfully improves minority-class recall without model architecture changes.
+Keywords: NLP, text classification, offensive language detection, hate speech detection, sentiment analysis, TF-IDF, n-gram, Logistic Regression, scikit-learn, Python, class imbalance, class balancing, feature engineering, TextBlob, macro F1, micro F1, social media NLP, tweet classification, OffensEval, SemEval, binary classification, multi-class classification, feature extraction
+
+## Scientific Measurement Extraction — MeasEval SemEval-2021
+- Trained a BiLSTM sequence labeling model (256 units, 2.8M parameters) on MeasEval's scientific text corpus to identify measurement quantity spans via BIO tagging; initializing the embedding layer with pre-trained GloVe weights lifted token-level F1 from a trainable-embeddings baseline of 0.79 to 0.82 — a 3.8% gain from representation transfer alone, without collecting additional labeled data.
+- Built a CNN-based relation extraction model (Conv1D → GlobalMaxPooling → Dense) to classify whether entity pairs in scientific sentences hold a HasQuantity relation; trained on 2,773 positive/negative candidates and evaluated on 1,445 test instances, achieving binary F1=0.757 — earning a 100% score on the course evaluation benchmark.
+Keywords: NLP, sequence labeling, named entity recognition, NER, BIO tagging, BiLSTM, LSTM, recurrent neural network, relation extraction, CNN, Conv1D, scientific text mining, information extraction, measurement extraction, MeasEval, SemEval-2021, word embeddings, GloVe, transfer learning, Keras, TensorFlow, Python, F1 score, entity extraction, deep learning, text annotation
 
 ## Multi-Label Text Classification with DistilRoBERTa Tokenization
-- Used the DistilRoBERTa tokenizer from Hugging Face to tokenize text inputs with truncation and padding.
-- Converted tokenized inputs into many-hot bag-of-words vectors.
-- Loaded training and validation data from CSV files using the datasets library and transformed label columns into multi-label targets.
-- Built a feedforward neural network in Keras with dense layers, batch normalization, dropout, and L2 regularization.
-- Trained the model with Adam optimization and monitored accuracy, precision, recall, and micro-F1.
-Keywords: multi-label classification, NLP, Python, Hugging Face, Transformers, Keras, TensorFlow, text classification, neural network, deep learning, model training, classification pipeline
+- Built a multi-label text classification pipeline using DistilRoBERTa tokenization and many-hot bag-of-words encoding, feeding the resulting representations into a feedforward Keras neural network with batch normalization, dropout, and L2 regularization to handle label co-occurrence across imbalanced classes.
+- Trained the model with Adam optimization and evaluated across accuracy, precision, recall, and micro-F1 simultaneously — selecting micro-F1 as the primary metric to account for class imbalance and reward performance across all label categories equally.
+Keywords: multi-label classification, NLP, Hugging Face, DistilRoBERTa, Keras, TensorFlow, Python, text classification, neural network, deep learning, micro-F1, bag-of-words, Transformers, model evaluation
 
-## Commonsense Reasoning with Pre-trained Language Models
-- Developed a binary classification pipeline for ComVE Subtask A using RoBERTa-based sequence classification.
-- Built a multiple-choice reasoning workflow for Subtask B using transformer-based multiple-choice modeling.
-- Implemented a sequence-to-sequence generation pipeline for Subtask C using BART to generate plausible commonsense explanations.
-- Used Hugging Face datasets and tokenizers to preprocess inputs across sentence-pair, multi-option, and text-generation formats.
-- Configured reproducible training workflows with deterministic seeds and Trainer / Seq2SeqTrainer APIs.
-Keywords: NLP, transformer models, Hugging Face, RoBERTa, BART, sequence classification, multiple-choice classification, text generation, LLM, language modeling, reasoning pipeline
+## Commonsense Reasoning with Pre-trained Language Models — ComVE
+- Fine-tuned RoBERTa-base on two ComVE reasoning tasks within a single codebase: Subtask A (nonsensical sentence identification, binary classification) reached 92.9% training accuracy; Subtask B (counterfactual reason selection from 3 candidates, multiple-choice) — implemented with a custom DataCollatorForMultipleChoice to handle variable-length option batches — reached 92.8% accuracy, demonstrating near-identical performance across fundamentally different reasoning formulations using the same backbone model.
+- Fine-tuned BART for Subtask C seq2seq commonsense explanation generation, achieving BLEU=0.222, ROUGE-1=0.306, and ROUGE-L=0.291 on held-out data; configured training with Hugging Face Seq2SeqTrainer and generation-specific evaluation metrics to produce fluent, human-readable rationales for implausible sentences.
+- Structured all three subtasks in a unified codebase with shared data utilities and fixed random seeds across Trainer, Seq2SeqTrainer, and PyTorch — enabling reproducible benchmarking and direct comparison across classification, multiple-choice, and sequence-to-sequence generation architectures in one project.
+Keywords: NLP, Hugging Face, RoBERTa, BART, sequence classification, multiple-choice reasoning, seq2seq, text generation, commonsense reasoning, transformer fine-tuning, LLM fine-tuning, BLEU, ROUGE, ComVE, SemEval, Trainer API, Seq2SeqTrainer, DataCollator, Python, reproducible training, natural language generation, counterfactual reasoning, pre-trained language models
+
+## LLM-Powered Resume Scanning and Career Decision System
+- Built a Flask web app that used Gemini multimodal models to parse PDF, DOCX, and image resumes — automatically extracting and mapping unstructured content to standardized profile fields (education, skills, experience, projects) — eliminating manual data entry and enabling immediate downstream processing.
+- Designed an end-to-end LLM orchestration workflow that connected resume parsing to 6 downstream decision stages: policy analysis, industry prioritization, company targeting, role matching, growth planning, and application material generation — covering the full job-search decision chain in a single system.
+- Integrated grounded generation with web-supported reasoning to anchor company-level and market recommendations in real data, reducing hallucinated outputs in career advice and role-matching results.
+Keywords: LLM, Gemini, multimodal AI, resume parsing, information extraction, structured output, JSON schema, Flask, prompt engineering, AI workflow orchestration, grounded generation, web app, career recommendation system
+
+## LangChain-Based Document QA Chatbot
+- Built a RAG pipeline using LangChain, FAISS, and OpenAI Embeddings to answer questions over an Apple 10-K annual report: chunked the document with RecursiveCharacterTextSplitter, embedded and indexed all chunks, and retrieved the top-k most semantically relevant passages before generating grounded answers — directly outperforming parametric-only LLM responses on document-specific queries.
+- Implemented a RetrievalQA workflow with ChatOpenAI that grounded every response in retrieved source sections, enabling citation-backed answers on long-form financial documents and reducing unsupported claims compared to standard LLM querying.
+Keywords: LangChain, RAG, FAISS, OpenAI Embeddings, vector search, RetrievalQA, document QA, LLM, Python, chunking, semantic search, financial document analysis, prompt engineering, grounded generation

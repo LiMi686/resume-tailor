@@ -1,7 +1,9 @@
 from __future__ import annotations
+import hashlib
 import json
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -38,10 +40,94 @@ from app.docx_renderer import render_docx
 
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
+APPLIED_JOBS_PATH = DATA_DIR / "applied_jobs.json"
 
 
 def read_file(name: str) -> str:
     return (DATA_DIR / name).read_text(encoding="utf-8")
+
+
+def load_applied_jobs() -> dict[str, dict[str, Any]]:
+    if not APPLIED_JOBS_PATH.exists():
+        return {}
+    try:
+        payload = json.loads(APPLIED_JOBS_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    return {str(key): value for key, value in payload.items() if isinstance(value, dict)}
+
+
+def save_applied_jobs(applied_jobs: dict[str, dict[str, Any]]) -> None:
+    APPLIED_JOBS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    APPLIED_JOBS_PATH.write_text(
+        json.dumps(applied_jobs, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+
+def build_match_key(match: dict[str, Any]) -> str:
+    candidate_parts = [
+        str(match.get("source_name", "")).strip().lower(),
+        str(match.get("url", "")).strip().lower(),
+        str(match.get("jobspy_direct_url", "")).strip().lower(),
+        str(match.get("jobspy_board_url", "")).strip().lower(),
+        str(match.get("career_ops_report_path", "")).strip().lower(),
+        str(match.get("title", "")).strip().lower(),
+        str(match.get("company", "") or match.get("career_ops_company", "")).strip().lower(),
+        str(match.get("location", "")).strip().lower(),
+    ]
+    normalized = "||".join(part for part in candidate_parts if part)
+    if not normalized:
+        normalized = json.dumps(match, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:16]
+
+
+def stamp_matches(matches: list[dict[str, Any]]) -> None:
+    for match in matches:
+        match["match_key"] = build_match_key(match)
+
+
+def split_matches_by_applied_status(
+    matches: list[dict[str, Any]],
+    applied_jobs: dict[str, dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    active_matches: list[dict[str, Any]] = []
+    applied_matches: list[dict[str, Any]] = []
+    for match in matches:
+        match_key = str(match.get("match_key") or build_match_key(match))
+        match["match_key"] = match_key
+        saved_record = applied_jobs.get(match_key)
+        if saved_record:
+            merged_match = dict(match)
+            merged_match["applied_at"] = saved_record.get("applied_at", "")
+            saved_snapshot = saved_record.get("match_snapshot")
+            if isinstance(saved_snapshot, dict):
+                for key, value in saved_snapshot.items():
+                    merged_match.setdefault(key, value)
+            applied_matches.append(merged_match)
+        else:
+            active_matches.append(match)
+    return active_matches, applied_matches
+
+
+def persist_applied_match(match: dict[str, Any]) -> None:
+    applied_jobs = load_applied_jobs()
+    match_key = str(match.get("match_key") or build_match_key(match))
+    match["match_key"] = match_key
+    applied_jobs[match_key] = {
+        "applied_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "match_snapshot": match,
+    }
+    save_applied_jobs(applied_jobs)
+
+
+def remove_applied_match(match_key: str) -> None:
+    applied_jobs = load_applied_jobs()
+    if match_key in applied_jobs:
+        del applied_jobs[match_key]
+        save_applied_jobs(applied_jobs)
 
 
 def load_config() -> None:
@@ -242,6 +328,22 @@ def assign_match_ranks(matches: list[dict[str, Any]]) -> None:
         match["rank"] = index
 
 
+def sync_applied_checkbox_state(matches: list[dict[str, Any]], button_prefix: str) -> bool:
+    changed = False
+    applied_jobs = load_applied_jobs()
+    for match in matches:
+        match_key = str(match.get("match_key") or build_match_key(match))
+        widget_key = f"applied_toggle_{button_prefix}_{match_key}"
+        is_checked = bool(st.session_state.get(widget_key, match_key in applied_jobs))
+        if is_checked and match_key not in applied_jobs:
+            persist_applied_match(match)
+            changed = True
+        elif not is_checked and match_key in applied_jobs:
+            remove_applied_match(match_key)
+            changed = True
+    return changed
+
+
 def load_match_into_resume(match: dict[str, Any]) -> None:
     if match.get("jd_text"):
         queue_match_for_resume(
@@ -296,6 +398,10 @@ def render_match_list(
     download_file_name: str,
     button_prefix: str,
 ) -> None:
+    stamp_matches(matches)
+    if sync_applied_checkbox_state(matches, button_prefix):
+        st.rerun()
+
     if warnings:
         with st.expander("Warnings"):
             for warning in warnings:
@@ -304,6 +410,11 @@ def render_match_list(
     if not matches:
         return
 
+    applied_jobs = load_applied_jobs()
+    active_matches, applied_matches = split_matches_by_applied_status(matches, applied_jobs)
+    assign_match_ranks(active_matches)
+    assign_match_ranks(applied_matches)
+
     st.subheader(title)
     st.download_button(
         download_label,
@@ -311,8 +422,12 @@ def render_match_list(
         file_name=download_file_name,
         mime="application/json",
     )
+    if active_matches:
+        st.caption(f"Pending applications: {len(active_matches)} | Applied: {len(applied_matches)}")
+    else:
+        st.caption(f"All loaded roles are already marked applied. Applied: {len(applied_matches)}")
 
-    for index, match in enumerate(matches):
+    for index, match in enumerate(active_matches):
         st.markdown(f"### {match['rank']}. {match['title']}")
 
         caption_bits: list[str] = []
@@ -365,11 +480,63 @@ def render_match_list(
         if match.get("career_ops_notes"):
             st.write(f"Notes: {match['career_ops_notes']}")
 
+        st.checkbox(
+            "Mark as applied",
+            key=f"applied_toggle_{button_prefix}_{match['match_key']}",
+            value=False,
+            help="Checked roles are saved locally, hidden from the main results next time, and moved into the applied section below.",
+        )
+
         if st.button("Use This JD in Resume Tailor", key=f"use_job_{button_prefix}_{index}"):
             load_match_into_resume(match)
 
         with st.expander("Preview crawled JD"):
             st.text(str(match.get("jd_text", ""))[:5000] or "No JD text available yet.")
+
+    if applied_matches:
+        st.markdown("### Applied Roles")
+        st.caption("Unchecked roles will move back into the active list.")
+        for index, match in enumerate(applied_matches):
+            st.markdown(f"### {match['rank']}. {match['title']}")
+
+            caption_bits: list[str] = []
+            if match.get("source_name"):
+                caption_bits.append(str(match["source_name"]))
+            if match.get("career_ops_score"):
+                caption_bits.append(f"Career-Ops score: {match['career_ops_score']}")
+            if match.get("jobspy_site"):
+                caption_bits.append(f"JobSpy: {match['jobspy_site']}")
+            if match.get("url"):
+                caption_bits.append(str(match["url"]))
+            st.caption(" | ".join(caption_bits) or "No job URL available")
+
+            details_bits: list[str] = []
+            if match.get("company"):
+                details_bits.append(f"Company: {match['company']}")
+            elif match.get("career_ops_company"):
+                details_bits.append(f"Company: {match['career_ops_company']}")
+            if match.get("location"):
+                details_bits.append(f"Location: {match['location']}")
+            if match.get("applied_at"):
+                details_bits.append(f"Applied at: {match['applied_at']}")
+            if match.get("career_ops_status"):
+                details_bits.append(f"Status: {match['career_ops_status']}")
+            if details_bits:
+                st.write("Details: " + " | ".join(details_bits))
+            if match.get("career_ops_notes"):
+                st.write(f"Notes: {match['career_ops_notes']}")
+
+            st.checkbox(
+                "Mark as applied",
+                key=f"applied_toggle_{button_prefix}_{match['match_key']}",
+                value=True,
+            )
+
+            if st.button("Use This JD in Resume Tailor", key=f"use_applied_job_{button_prefix}_{index}"):
+                load_match_into_resume(match)
+
+            with st.expander("Preview crawled JD", expanded=False):
+                st.text(str(match.get("jd_text", ""))[:5000] or "No JD text available yet.")
 
 
 def render_resume_tab() -> None:

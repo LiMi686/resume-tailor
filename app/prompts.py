@@ -8,6 +8,7 @@ Select either 3 experiences + 3 projects, or 4 experiences + 2 projects.
 Keep the resume to one page and make it full without overflow.
 Use concise ATS-friendly language.
 Summary must be one sentence.
+Each experience entry includes a pool of supported bullets. Select the 3–4 most JD-relevant bullets from the pool; do not use all of them.
 Prefer 3 bullets per experience; allow 4 only when the extra detail is useful and supported.
 Keep each project to 1 bullet and keep skill lines compact.
 Match the resume language to the JD language.

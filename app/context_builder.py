@@ -213,6 +213,14 @@ def _rank_experiences(jd: str, entries: list[ExperienceEntry], limit: Optional[i
     return selected
 
 
+_PRIORITY_PROJECT_MARKERS = {"hackarizona", "1st place"}
+
+
+def _project_priority_bonus(entry: ProjectEntry) -> int:
+    title_lower = entry.title.lower()
+    return 20 if any(marker in title_lower for marker in _PRIORITY_PROJECT_MARKERS) else 0
+
+
 def _rank_projects(jd: str, entries: list[ProjectEntry], limit: Optional[int]) -> list[ProjectEntry]:
     if limit is None or limit >= len(entries):
         return entries
@@ -220,7 +228,7 @@ def _rank_projects(jd: str, entries: list[ProjectEntry], limit: Optional[int]) -
     ranked = sorted(
         entries,
         key=lambda entry: (
-            _score_text(jd, entry.title, entry.bullets, entry.keywords),
+            _score_text(jd, entry.title, entry.bullets, entry.keywords) + _project_priority_bonus(entry),
             entry.title,
         ),
         reverse=True,
@@ -238,8 +246,8 @@ def _render_experience_context(entries: list[ExperienceEntry]) -> str:
         ]
         if entry.keywords:
             lines.append(f"Keywords: {', '.join(entry.keywords)}")
-        lines.append("Supported details:")
-        for bullet in entry.bullets[:4]:
+        lines.append("Supported details (select the most JD-relevant):")
+        for bullet in entry.bullets:
             lines.append(f"- {bullet}")
         blocks.append("\n".join(lines))
     return "\n\n".join(blocks)
