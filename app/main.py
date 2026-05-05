@@ -295,10 +295,19 @@ def estimated_length_score(payload: ResumePayload) -> int:
 
 
 def maybe_compress(payload: ResumePayload) -> tuple[ResumePayload, dict[str, int]]:
-    # Conservative heuristic for this template.
-    if compress_pass_enabled() and estimated_length_score(payload) > 2500:
-        return compress_payload(payload, percent=15)
-    return payload, {}
+    if not compress_pass_enabled():
+        return payload, {}
+    score = estimated_length_score(payload)
+    if score <= 1800:
+        return payload, {}
+    # First pass: compress proportionally to how far over the limit we are.
+    percent = 20 if score > 2200 else 15
+    payload, usage1 = compress_payload(payload, percent=percent)
+    # Second pass if still over threshold after first compress.
+    if estimated_length_score(payload) > 1900:
+        payload, usage2 = compress_payload(payload, percent=12)
+        return payload, merge_usage(usage1, usage2)
+    return payload, usage1
 
 
 def sync_jd_from_query_params() -> None:

@@ -25,11 +25,13 @@ class ResumePayload(BaseModel):
     projects: List[Project] = Field(min_length=2, max_length=3)
 
     @model_validator(mode="after")
-    def require_arizona_list_experience(self):
+    def require_core_experiences(self):
         valid_pairs = {(3, 3), (4, 2)}
         pair = (len(self.experiences), len(self.projects))
         if pair not in valid_pairs:
             raise ValueError("Resume must contain either 3 experiences and 3 projects, or 4 experiences and 2 projects.")
         if not any("Arizona List" in exp.organization for exp in self.experiences):
             raise ValueError("Arizona List — Data Analyst Intern must be included in experiences.")
+        if not any("Usher Technologies" in exp.organization for exp in self.experiences):
+            raise ValueError("Usher Technologies Inc — Data Science Intern must be included in experiences.")
         return self
