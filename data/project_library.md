@@ -70,12 +70,6 @@ Keywords: multi-label classification, NLP, Hugging Face, DistilRoBERTa, Keras, T
 - Structured all three subtasks in a unified codebase with shared data utilities and fixed random seeds across Trainer, Seq2SeqTrainer, and PyTorch — enabling reproducible benchmarking and direct comparison across classification, multiple-choice, and sequence-to-sequence generation architectures in one project.
 Keywords: NLP, Hugging Face, RoBERTa, BART, sequence classification, multiple-choice reasoning, seq2seq, text generation, commonsense reasoning, transformer fine-tuning, LLM fine-tuning, BLEU, ROUGE, ComVE, SemEval, Trainer API, Seq2SeqTrainer, DataCollator, Python, reproducible training, natural language generation, counterfactual reasoning, pre-trained language models
 
-## LLM-Powered Resume Scanning and Career Decision System
-- Built a Flask web app that used Gemini multimodal models to parse PDF, DOCX, and image resumes — automatically extracting and mapping unstructured content to standardized profile fields (education, skills, experience, projects) — eliminating manual data entry and enabling immediate downstream processing.
-- Designed an end-to-end LLM orchestration workflow that connected resume parsing to 6 downstream decision stages: policy analysis, industry prioritization, company targeting, role matching, growth planning, and application material generation — covering the full job-search decision chain in a single system.
-- Integrated grounded generation with web-supported reasoning to anchor company-level and market recommendations in real data, reducing hallucinated outputs in career advice and role-matching results.
-Keywords: LLM, Gemini, multimodal AI, resume parsing, information extraction, structured output, JSON schema, Flask, prompt engineering, AI workflow orchestration, grounded generation, web app, career recommendation system
-
 ## LangChain-Based Document QA Chatbot
 - Built a RAG pipeline using LangChain, FAISS, and OpenAI Embeddings to answer questions over an Apple 10-K annual report: chunked the document with RecursiveCharacterTextSplitter, embedded and indexed all chunks, and retrieved the top-k most semantically relevant passages before generating grounded answers — directly outperforming parametric-only LLM responses on document-specific queries.
 - Implemented a RetrievalQA workflow with ChatOpenAI that grounded every response in retrieved source sections, enabling citation-backed answers on long-form financial documents and reducing unsupported claims compared to standard LLM querying.

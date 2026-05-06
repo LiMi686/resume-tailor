@@ -181,6 +181,9 @@ def _score_text(jd: str, title: str, bullets: tuple[str, ...], keywords: tuple[s
         if len(key) >= 4 and key in jd_lower:
             score += 3
 
+    if "hackarizona" in title.lower():
+        score += 100
+
     return score
 
 
@@ -227,6 +230,7 @@ def _rank_projects(jd: str, entries: list[ProjectEntry], limit: Optional[int]) -
     if limit is None or limit >= len(entries):
         return entries
 
+    required = next((entry for entry in entries if "HackArizona" in entry.title), None)
     ranked = sorted(
         entries,
         key=lambda entry: (
@@ -235,7 +239,19 @@ def _rank_projects(jd: str, entries: list[ProjectEntry], limit: Optional[int]) -
         ),
         reverse=True,
     )
-    return ranked[:limit]
+
+    selected: list[ProjectEntry] = []
+    if required is not None:
+        selected.append(required)
+
+    for entry in ranked:
+        if entry in selected:
+            continue
+        if len(selected) >= limit:
+            break
+        selected.append(entry)
+
+    return selected
 
 
 def _render_experience_context(entries: list[ExperienceEntry]) -> str:
