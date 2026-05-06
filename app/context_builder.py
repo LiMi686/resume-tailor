@@ -213,11 +213,13 @@ def _rank_experiences(jd: str, entries: list[ExperienceEntry], limit: Optional[i
     return selected
 
 
-_PRIORITY_PROJECT_MARKERS = {"hackarizona", "1st place"}
+_PRIORITY_PROJECT_MARKERS = {"hackarizona", "most innovative use of ai for the public good"}
 
 
 def _project_priority_bonus(entry: ProjectEntry) -> int:
     title_lower = entry.title.lower()
+    if "hackarizona" in title_lower:
+        return 50
     return 20 if any(marker in title_lower for marker in _PRIORITY_PROJECT_MARKERS) else 0
 
 
