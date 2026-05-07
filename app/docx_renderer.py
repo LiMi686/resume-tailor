@@ -184,15 +184,10 @@ def _add_bullet(document: Document, text: str) -> None:
 
 
 def _add_projects(document: Document, payload: ResumePayload) -> None:
-    for project in payload.projects:
+    for index, project in enumerate(payload.projects):
         paragraph = document.add_paragraph()
-        paragraph.paragraph_format.left_indent = Inches(0.18)
-        paragraph.paragraph_format.first_line_indent = Inches(-0.18)
         paragraph.paragraph_format.space_after = Pt(0)
         paragraph.paragraph_format.line_spacing = 1.0
-
-        bullet_run = paragraph.add_run("• ")
-        _set_run_font(bullet_run)
 
         if project.link:
             _add_hyperlink(paragraph, project.title, project.link)
@@ -200,11 +195,11 @@ def _add_projects(document: Document, payload: ResumePayload) -> None:
             title_run = paragraph.add_run(project.title)
             _set_run_font(title_run, bold=True)
 
-        separator_run = paragraph.add_run(". ")
-        _set_run_font(separator_run)
+        for bullet_text in project.bullets:
+            _add_bullet(document, bullet_text)
 
-        bullet_text_run = paragraph.add_run(project.bullet)
-        _set_run_font(bullet_text_run)
+        if index < len(payload.projects) - 1:
+            document.add_paragraph()
 
 
 def render_docx(output_path: Path, payload: ResumePayload) -> None:

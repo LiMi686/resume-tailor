@@ -274,11 +274,13 @@ def _render_experience_context(entries: list[ExperienceEntry]) -> str:
 def _render_project_context(entries: list[ProjectEntry]) -> str:
     blocks: list[str] = []
     for entry in entries:
+        is_hackarizona = "HackArizona" in entry.title or "Community Food Bank" in entry.title
         lines = [f"## {entry.title}"]
         if entry.keywords:
             lines.append(f"Keywords: {', '.join(entry.keywords)}")
         lines.append("Supported details:")
-        for bullet in entry.bullets[:4]:
+        bullets_to_show = entry.bullets if is_hackarizona else entry.bullets[:4]
+        for bullet in bullets_to_show:
             lines.append(f"- {bullet}")
         blocks.append("\n".join(lines))
     return "\n\n".join(blocks)

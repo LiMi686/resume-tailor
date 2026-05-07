@@ -38,21 +38,23 @@ def build_experience_block(payload: ResumePayload) -> str:
 
 
 def build_project_block(payload: ResumePayload) -> str:
-    lines = []
+    chunks = []
     for proj in payload.projects:
         title = latex_escape(proj.title)
-        bullet = latex_escape(proj.bullet)
         if proj.link:
             link = proj.link.replace('%', r'\%')
             title_part = rf"\href{{{link}}}{{\textcolor{{blue}}{{\myuline{{{title}}}}}}}"
         else:
-            title_part = rf"\textbf{{{title}}}"
-        lines.append(
-            "\\resumeItem{%\n"
-            f"{title_part}. \n"
-            f"{bullet}" + "}"
+            title_part = title
+        chunks.append(
+            "\n  \\resumeProjectHeading\n"
+            f"    {{{title_part}}}{{}}\n"
+            "    \\resumeItemListStart"
         )
-    return "\n\n".join(lines)
+        for bullet in proj.bullets:
+            chunks.append(f"      \\resumeItem{{{latex_escape(bullet)}}}")
+        chunks.append("    \\resumeItemListEnd\n")
+    return "\n".join(chunks)
 
 
 def render_resume(template_path: Path, payload: ResumePayload) -> str:

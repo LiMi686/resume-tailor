@@ -1,6 +1,6 @@
 # Project Library
 
-## Community Food Bank Training — Dropout Risk, Support Platform | HackArizona Most Innovative Use of AI for the Public Good
+## Community Food Bank Training | HackArizona Winner
 - Won Most Innovative Use of AI for the Public Good at HackArizona competing in the Southern Arizona Social Innovation Track (Community Food Bank of Southern Arizona Challenge), building a production-ready platform to reduce the ~33% dropout rate in the Food Bank's culinary workforce training program by detecting early-warning risk signals before participants disengage.
 - Designed a full three-layer system architecture: a participant-facing engagement app, a Python/FastAPI risk-scoring backend (port 7000), and an AI chatbot backend (port 7001), all connected to a live MongoDB Atlas cloud database with 11 collections tracking participants, risk scores, weekly check-ins, interventions, and attendance records.
 - Engineered a logistic regression dropout risk model with SHAP explainability that scores every participant weekly across 7 behavioral signals — consecutive absences, SMS non-response patterns, housing stability changes, financial stress indicators, motivation fluctuations, childcare load shifts, and transportation barriers — outputting a 0–100% probability that drives a real-time coordinator watchlist sorted by risk level.
