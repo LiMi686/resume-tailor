@@ -44,7 +44,7 @@ Bullets source:
 - Standardized the full analysis workflow — cleaning, visualization, clustering, and candidate selection — into a reproducible pipeline, enabling the research team to apply the same methodology to new datasets without re-engineering the process for each run.
 Keywords: data cleaning, data visualization, K-means clustering, outlier detection, reproducible pipeline, candidate selection, classification efficiency, statistical analysis, exploratory data analysis, Python, biological data, research workflow
 
-## Usher Technologies Inc — Data Science Intern
+## Usher Technologies Inc — Data Scientist Intern
 Period: Jul 2023 – Nov 2023
 Location: Manila, Philippines
 Bullets source:

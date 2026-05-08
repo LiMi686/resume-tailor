@@ -4,9 +4,9 @@ Return only valid JSON matching the schema.
 Keep every claim truthful and source-supported.
 Never invent metrics, tools, responsibilities, technologies, or outcomes.
 Always include "Arizona List — Data Analyst Intern" in experiences.
-Always include "Usher Technologies Inc — Data Science Intern" in experiences.
+Always include "Usher Technologies Inc — Data Scientist Intern" in experiences.
 Always include the "Community Food Bank Training | HackArizona Winner" project in projects.
-Select either 3 experiences + 3 projects, or 4 experiences + 2 projects based on JD fit; use 3 experiences + 3 projects when fewer than 4 experiences are clearly relevant.
+Output EXACTLY one of these two layouts: (A) 3 experiences + 3 projects, or (B) 4 experiences + 2 projects. No other combination is valid. Choose (A) when fewer than 4 experiences are clearly relevant to the JD; choose (B) when all 4 experiences are relevant.
 Experience selection priority: (1) Arizona List, (2) Usher Technologies, (3) Cancer Center or Engineering RA based on JD fit, (4) Law Library only if it adds soft-skill value that the JD explicitly calls for.
 Keep the resume to one page and make it full without overflow.
 Use concise ATS-friendly language.
@@ -36,19 +36,27 @@ Target job description:
 """
 
 COMPRESS_TEMPLATE = """
-Compress this JSON by about {percent}%.
+Target job description (use this to judge relevance):
+{jd}
+
+Compress this JSON by about {percent}% to ensure it fits on one page.
 Do not change the selected experiences or projects.
-Keep the same valid pair: 3 experiences + 3 projects, or 4 experiences + 2 projects.
+Keep the exact same layout as the input: either 3 experiences + 3 projects, or 4 experiences + 2 projects. Do not change the count.
 Keep "Arizona List — Data Analyst Intern" in experiences.
 Keep "Community Food Bank Training | HackArizona Winner" in projects.
-Shorten wording only. Cut filler words and redundant phrases first.
+
+Prioritize cuts from least JD-relevant content first:
+1. Drop the 4th bullet from non-Arizona-List experience entries if they have 4 bullets.
+2. Shorten bullets in experiences that are less relevant to the JD.
+3. Shorten bullets in non-HackArizona projects.
+4. Shorten HackArizona project bullets last.
+
 Each experience bullet must be at most 110 characters after compression.
-Exception: do not shorten "Arizona List — Data Analyst Intern" bullets below 150 characters; keep all 4 bullets for that role if present.
-HackArizona Winner project bullets may be up to 180 characters; keep all of them.
-All other project bullets must be at most 120 characters after compression.
-Summary must be at most 180 characters.
-Preserve truthfulness, relevance, ATS keywords, and one-page fit.
-Prefer 3 bullets per experience for all other roles; drop a 4th bullet only from non-Arizona-List entries if needed to fit one page.
+Exception: do not shorten "Arizona List — Data Analyst Intern" bullets below 150 characters; keep all 4 bullets for that role.
+HackArizona Winner project bullets may be up to 160 characters; preserve as many as possible.
+All other project bullets must be at most 100 characters after compression.
+Summary must be at most 160 characters.
+Preserve truthfulness, ATS keywords, and one-page fit.
 Return only valid JSON.
 
 JSON:

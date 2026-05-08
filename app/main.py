@@ -257,7 +257,7 @@ def call_model(jd: str) -> tuple[ResumePayload, dict[str, int], dict[str, int]]:
     return response.output_parsed, extract_usage(response), prompt_stats
 
 
-def compress_payload(payload: ResumePayload, percent: int = 12) -> tuple[ResumePayload, dict[str, int]]:
+def compress_payload(payload: ResumePayload, percent: int = 12, jd: str = "") -> tuple[ResumePayload, dict[str, int]]:
     client = get_client()
     request_kwargs = {
         "model": get_model(),
@@ -267,6 +267,7 @@ def compress_payload(payload: ResumePayload, percent: int = 12) -> tuple[ResumeP
                 "role": "user",
                 "content": COMPRESS_TEMPLATE.format(
                     percent=percent,
+                    jd=jd,
                     json_payload=payload.model_dump_json(),
                 ),
             },
@@ -290,22 +291,22 @@ def estimated_length_score(payload: ResumePayload) -> int:
         total += len(exp.organization) + len(exp.role) + len(exp.location)
         total += sum(len(b) for b in exp.bullets)
     for proj in payload.projects:
-        total += len(proj.title) + len(proj.bullet)
+        total += len(proj.title) + sum(len(b) for b in proj.bullets)
     return total
 
 
-def maybe_compress(payload: ResumePayload) -> tuple[ResumePayload, dict[str, int]]:
+def maybe_compress(payload: ResumePayload, jd: str = "") -> tuple[ResumePayload, dict[str, int]]:
     if not compress_pass_enabled():
         return payload, {}
     score = estimated_length_score(payload)
-    if score <= 1800:
+    if score <= 1600:
         return payload, {}
     # First pass: compress proportionally to how far over the limit we are.
-    percent = 20 if score > 2200 else 15
-    payload, usage1 = compress_payload(payload, percent=percent)
+    percent = 25 if score > 2100 else 18
+    payload, usage1 = compress_payload(payload, percent=percent, jd=jd)
     # Second pass if still over threshold after first compress.
-    if estimated_length_score(payload) > 1900:
-        payload, usage2 = compress_payload(payload, percent=12)
+    if estimated_length_score(payload) > 1700:
+        payload, usage2 = compress_payload(payload, percent=12, jd=jd)
         return payload, merge_usage(usage1, usage2)
     return payload, usage1
 
@@ -570,7 +571,7 @@ def render_resume_tab() -> None:
         try:
             with st.spinner("Selecting content and generating resume fields..."):
                 payload, generation_usage, prompt_stats = call_model(jd)
-                payload, compression_usage = maybe_compress(payload)
+                payload, compression_usage = maybe_compress(payload, jd=jd)
                 total_usage = merge_usage(generation_usage, compression_usage)
 
             tex = render_resume(DATA_DIR / "master_resume.tex", payload)

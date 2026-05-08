@@ -33,7 +33,7 @@ class ResumePayload(BaseModel):
         if not any("Arizona List" in exp.organization for exp in self.experiences):
             raise ValueError("Arizona List — Data Analyst Intern must be included in experiences.")
         if not any("Usher Technologies" in exp.organization for exp in self.experiences):
-            raise ValueError("Usher Technologies Inc — Data Science Intern must be included in experiences.")
+            raise ValueError("Usher Technologies Inc — Data Scientist Intern must be included in experiences.")
         if not any("Community Food Bank" in proj.title or "HackArizona" in proj.title for proj in self.projects):
             raise ValueError("Community Food Bank Training (HackArizona Winner) must be included in projects.")
         return self
