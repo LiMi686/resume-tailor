@@ -107,8 +107,8 @@ Never invent metrics, tools, responsibilities, technologies, or outcomes.
 Always include "Arizona List — Data Analyst Intern" in experiences.
 Always include "Usher Technologies Inc — Data Scientist Intern" in experiences.
 Always include the "Community Food Bank Training | HackArizona Winner" project in projects.
-Output EXACTLY one of these two layouts: (A) 3 experiences + 3 projects, or (B) 4 experiences + 2 projects. No other combination is valid. Choose (A) when fewer than 4 experiences are clearly relevant to the JD; choose (B) when all 4 experiences are relevant.
-Experience selection priority: (1) Arizona List, (2) Usher Technologies, (3) Cancer Center or Engineering RA based on JD fit, (4) Law Library only if it adds soft-skill value that the JD explicitly calls for.
+Output EXACTLY this layout: 3 experiences + 3 projects. No other combination is valid.
+Experience selection: pick the 3 most JD-relevant entries. Always include "Arizona List — Data Analyst Intern". Choose the remaining 2 from: Usher Technologies, Cancer Center, Engineering RA, or Law Library — whichever best match the JD.
 Keep the resume to one page and make it full without overflow.
 Use concise ATS-friendly language.
 Summary must be one sentence, max 180 characters.
@@ -142,7 +142,7 @@ Target job description (use this to judge relevance):
 
 Compress this JSON by about {percent}% to ensure it fits on one page.
 Do not change the selected experiences or projects.
-Keep the exact same layout as the input: either 3 experiences + 3 projects, or 4 experiences + 2 projects. Do not change the count.
+Keep the exact same layout as the input: 3 experiences + 3 projects. Do not change the count.
 Keep "Arizona List — Data Analyst Intern" in experiences.
 Keep "Community Food Bank Training | HackArizona Winner" in projects.
 

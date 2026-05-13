@@ -39,9 +39,8 @@
 - Preserve the LaTeX template exactly.
 - Keep the resume on one page.
 - Make the page feel as full as possible without causing overflow.
-- Select either 3 experience entries and 3 project entries, or 4 experience entries and 2 project entries.
-- Decide between those two combinations based on the JD.
-- Always include Arizona List — Data Analyst Intern as one of the selected experience entries.
+- Always select exactly 3 experience entries and 3 project entries.
+- Always include Arizona List — Data Analyst Intern as one of the 3 experience entries. Choose the remaining 2 from the other entries based on JD fit.
 - Do not invent tools, metrics, responsibilities, or outcomes.
 - Do not invent technologies, business context, or impact.
 - Prefer ATS-friendly wording while keeping claims truthful.
