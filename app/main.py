@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-from app.prompts import SYSTEM_PROMPT, USER_TEMPLATE, COMPRESS_TEMPLATE
+from app.prompts import SYSTEM_PROMPT, USER_TEMPLATE, COMPRESS_TEMPLATE, COVER_LETTER_SYSTEM_PROMPT, COVER_LETTER_USER_TEMPLATE
 from app.career_ops_bridge import (
     career_ops_available,
     career_ops_install_hint,
@@ -36,7 +36,7 @@ from app.context_builder import build_prompt_context
 from app.renderer import render_resume
 from app.schema import ResumePayload
 from app.compiler import compile_pdf, pdf_export_available
-from app.docx_renderer import render_docx
+from app.docx_renderer import render_docx, render_cover_letter_docx
 
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
@@ -132,6 +132,13 @@ def remove_applied_match(match_key: str) -> None:
 
 def load_config() -> None:
     load_dotenv(BASE_DIR / ".env")
+    # Load from Streamlit Cloud secrets when .env is not present
+    try:
+        for key, value in st.secrets.items():
+            if isinstance(value, str):
+                os.environ.setdefault(key, value)
+    except Exception:
+        pass
 
 
 def get_client() -> OpenAI:
@@ -309,6 +316,57 @@ def maybe_compress(payload: ResumePayload, jd: str = "") -> tuple[ResumePayload,
         payload, usage2 = compress_payload(payload, percent=12, jd=jd)
         return payload, merge_usage(usage1, usage2)
     return payload, usage1
+
+
+def call_cover_letter_model(jd: str, candidate_name: str = "Li Mi", company_name: str = "") -> tuple[str, dict[str, int]]:
+    client = get_client()
+
+    experience_library = read_file("experience_library.md")
+    project_library = read_file("project_library.md")
+
+    user_prompt = (
+        "Candidate Experience Library:\n" + experience_library + "\n\n"
+        "Candidate Project Library:\n" + project_library + "\n\n"
+        "Target Job Description:\n" + jd + "\n\n"
+        "Company name: " + (company_name.strip() or "(not provided — infer from JD if possible)") + "\n"
+        "Candidate name: " + (candidate_name.strip() or "Li Mi") + "\n\n"
+        "Apply Trout's Positioning theory: identify the specific category this candidate should own for this role. "
+        + (f"Search for {company_name.strip()}'s values, mission, and recent news before writing. " if company_name.strip() else "")
+        + "Output only the final cover letter, nothing else."
+    )
+
+    def _extract_text(response: Any) -> str:
+        text = ""
+        for item in getattr(response, "output", []):
+            if getattr(item, "type", None) == "message":
+                for block in getattr(item, "content", []):
+                    if getattr(block, "type", None) == "output_text":
+                        text += getattr(block, "text", "")
+        if not text:
+            text = getattr(response, "output_text", "") or ""
+        return text.strip()
+
+    base_kwargs: dict[str, Any] = {
+        "model": get_model(),
+        "input": [
+            {"role": "system", "content": COVER_LETTER_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt},
+        ],
+    }
+    reasoning = get_reasoning_config()
+    if reasoning:
+        base_kwargs["reasoning"] = reasoning
+
+    if company_name.strip():
+        try:
+            kwargs_with_search = {**base_kwargs, "tools": [{"type": "web_search_preview"}]}
+            response = client.responses.create(**kwargs_with_search)
+            return _extract_text(response), extract_usage(response)
+        except Exception:
+            pass
+
+    response = client.responses.create(**base_kwargs)
+    return _extract_text(response), extract_usage(response)
 
 
 def sync_jd_from_query_params() -> None:
@@ -550,7 +608,7 @@ def render_match_list(
 
 
 def render_resume_tab() -> None:
-    st.caption("Paste a JD, generate a one-page resume based on your fixed template.")
+    st.caption("Paste a JD, then generate a resume, a cover letter, or both.")
     resume_load_message = st.session_state.pop("_resume_load_message", "")
     if resume_load_message:
         st.success(resume_load_message)
@@ -558,11 +616,84 @@ def render_resume_tab() -> None:
     jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...", key="jd_input")
     file_stem = st.text_input("Output file name", value="tailored_resume")
 
-    col1, col2 = st.columns(2)
-    with col1:
+    name_col, company_col = st.columns(2)
+    with name_col:
+        cl_candidate_name = st.text_input("Your name", value="Li Mi", key="cl_candidate_name")
+    with company_col:
+        cl_company_name = st.text_input(
+            "Company name (optional — enables values research)",
+            value="",
+            placeholder="e.g. Stripe, Airbnb, OpenAI",
+            key="cl_company_name",
+        )
+
+    btn_col1, btn_col2, btn_col3 = st.columns([2, 2, 1])
+    with btn_col1:
         generate = st.button("Generate Resume", type="primary")
-    with col2:
-        generate_pdf = st.checkbox("Generate PDF after generating", value=False)
+    with btn_col2:
+        generate_cover_letter_btn = st.button("Generate Cover Letter", key="gen_cover_letter")
+    with btn_col3:
+        generate_pdf = st.checkbox("PDF", value=False, help="Generate PDF after resume is built")
+
+    if generate_cover_letter_btn:
+        if not jd.strip():
+            st.error("Please paste a JD first.")
+        else:
+            spinner_msg = (
+                f"Researching {cl_company_name.strip()}'s values and writing cover letter..."
+                if cl_company_name.strip()
+                else "Writing cover letter..."
+            )
+            try:
+                with st.spinner(spinner_msg):
+                    cover_letter_text, cl_usage = call_cover_letter_model(
+                        jd=jd,
+                        candidate_name=cl_candidate_name,
+                        company_name=cl_company_name,
+                    )
+                cl_docx_path = OUTPUT_DIR / f"{file_stem}_cover_letter.docx"
+                OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+                render_cover_letter_docx(cl_docx_path, cover_letter_text)
+                st.session_state["_cover_letter_content"] = cover_letter_text
+                st.session_state["_cover_letter_usage"] = cl_usage
+                st.session_state["_cover_letter_stem"] = file_stem
+                st.session_state.pop("cl_display_area", None)
+            except Exception as exc:
+                st.error(f"Cover letter generation failed: {exc}")
+
+    stored_cl = st.session_state.get("_cover_letter_content", "")
+    if stored_cl:
+        st.markdown("#### Cover Letter")
+        st.text_area(
+            "Generated Cover Letter",
+            value=stored_cl,
+            height=420,
+            key="cl_display_area",
+        )
+        cl_stem = st.session_state.get("_cover_letter_stem", file_stem)
+        cl_docx_path = OUTPUT_DIR / f"{cl_stem}_cover_letter.docx"
+        if cl_docx_path.exists():
+            st.download_button(
+                "Download Cover Letter (.docx)",
+                cl_docx_path.read_bytes(),
+                file_name=cl_docx_path.name,
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                key="cl_docx_download",
+            )
+        st.download_button(
+            "Download Cover Letter (.txt)",
+            stored_cl,
+            file_name=f"{cl_stem}_cover_letter.txt",
+            mime="text/plain",
+            key="cl_txt_download",
+        )
+        cl_usage = st.session_state.get("_cover_letter_usage", {})
+        if cl_usage:
+            cl_u1, cl_u2 = st.columns(2)
+            cl_u1.metric("CL Input Tokens", f"{cl_usage.get('input_tokens', 0):,}")
+            cl_u2.metric("CL Output Tokens", f"{cl_usage.get('output_tokens', 0):,}")
+
+    st.markdown("---")
 
     if generate:
         if not jd.strip():

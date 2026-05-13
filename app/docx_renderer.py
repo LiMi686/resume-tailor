@@ -202,6 +202,33 @@ def _add_projects(document: Document, payload: ResumePayload) -> None:
             document.add_paragraph()
 
 
+def render_cover_letter_docx(output_path: Path, text: str) -> None:
+    document = Document()
+    section = document.sections[0]
+    section.top_margin = Inches(1.0)
+    section.bottom_margin = Inches(1.0)
+    section.left_margin = Inches(1.25)
+    section.right_margin = Inches(1.25)
+
+    normal = document.styles["Normal"]
+    normal.font.name = BODY_FONT
+    normal.font.size = Pt(11)
+    normal.paragraph_format.space_after = Pt(0)
+    normal.paragraph_format.line_spacing = Pt(14)
+
+    paragraphs = [p.strip() for p in text.split("\n") if p.strip()]
+    for para_text in paragraphs:
+        p = document.add_paragraph()
+        p.paragraph_format.space_after = Pt(11)
+        p.paragraph_format.line_spacing = Pt(14)
+        run = p.add_run(para_text)
+        run.font.name = BODY_FONT
+        run.font.size = Pt(11)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    document.save(output_path)
+
+
 def render_docx(output_path: Path, payload: ResumePayload) -> None:
     document = Document()
     _configure_document(document)
