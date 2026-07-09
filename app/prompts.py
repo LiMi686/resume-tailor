@@ -105,7 +105,6 @@ Return only valid JSON matching the schema.
 Keep every claim truthful and source-supported.
 Never invent metrics, tools, responsibilities, technologies, or outcomes.
 Always include "Arizona List — Data Analyst Intern" in experiences.
-Always include "Usher Technologies Inc — Data Scientist Intern" in experiences.
 Always include the "Community Food Bank Training | HackArizona Winner" project in projects.
 Output EXACTLY this layout: 3 experiences + 3 projects. No other combination is valid.
 Experience selection: pick the 3 most JD-relevant entries. Always include "Arizona List — Data Analyst Intern". Choose the remaining 2 from: Usher Technologies, Cancer Center, Engineering RA, or Law Library — whichever best match the JD.

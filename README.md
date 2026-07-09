@@ -125,10 +125,12 @@ CAREER_OPS_NPM=/absolute/path/to/npm
 
 The app now includes a dedicated `JobSpy` tab backed by [`python-jobspy`](https://github.com/speedyapply/JobSpy).
 
-Default search scopes are ordered to prioritize North America with Tucson ZIP `85716` first:
+Default search scopes are ordered to prioritize local Arizona ZIP scopes before broader North America:
 
 ```text
 Tucson, AZ 85716 | USA
+Phoenix, AZ 85004 | USA
+Tolleson, AZ 85353 | USA
 United States | USA
 Canada | Canada
 Mexico | Mexico
@@ -158,7 +160,7 @@ Notes:
 
 1. Open the `JobSpy` tab.
 2. Enter a search term such as `data analyst OR business analyst`.
-3. Keep the default search scopes if you want Tucson `85716` first and broader North America after that.
+3. Keep the default search scopes if you want Tucson `85716`, Phoenix `85004`, and Tolleson `85353` first, with broader North America after that.
 4. Click `Search JobSpy`.
 5. Click `Use This JD in Resume Tailor` on a role you want.
 6. Switch to `Resume Tailor`.

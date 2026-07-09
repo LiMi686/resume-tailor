@@ -792,7 +792,7 @@ def render_resume_tab() -> None:
 
 
 def render_jobspy_tab() -> None:
-    st.caption("Search with JobSpy, prioritize Tucson ZIP 85716, widen to North America, then send a role into Resume Tailor.")
+    st.caption("Search with JobSpy, prioritize local Arizona ZIP scopes, widen to North America, then send a role into Resume Tailor.")
     if not jobspy_available():
         st.warning(jobspy_install_hint())
 
@@ -814,8 +814,8 @@ def render_jobspy_tab() -> None:
             value=st.session_state.get("jobspy_scope_text", default_scope_text),
             height=120,
             help=(
-                "One scope per line. Use `Location | Country`. Defaults prioritize Tucson, AZ 85716 first, "
-                "then USA, Canada, and Mexico."
+                "One scope per line. Use `Location | Country`. Defaults prioritize Tucson 85716, "
+                "Phoenix 85004, and Tolleson 85353 before USA, Canada, and Mexico."
             ),
         )
 
@@ -923,7 +923,7 @@ def render_jobspy_tab() -> None:
 
                 if merged_matches:
                     st.success(
-                        f"Loaded {len(merged_matches)} JobSpy roles with Tucson ZIP 85716 prioritized first."
+                        f"Loaded {len(merged_matches)} JobSpy roles with local Arizona ZIP scopes prioritized first."
                     )
                 else:
                     st.warning("JobSpy did not return any roles for this search yet.")

@@ -10,6 +10,8 @@ from typing import Any
 DEFAULT_JOBSPY_SCOPE_TEXT = "\n".join(
     [
         "Tucson, AZ 85716 | USA",
+        "Phoenix, AZ 85004 | USA",
+        "Tolleson, AZ 85353 | USA",
         "United States | USA",
         "Canada | Canada",
         "Mexico | Mexico",
