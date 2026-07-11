@@ -2,6 +2,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -45,6 +46,11 @@ APPLIED_JOBS_PATH = DATA_DIR / "applied_jobs.json"
 
 def read_file(name: str) -> str:
     return (DATA_DIR / name).read_text(encoding="utf-8")
+
+
+def sanitize_file_stem(raw: str) -> str:
+    cleaned = re.sub(r'[\\/:*?"<>|]+', "_", raw).strip().strip(".")
+    return cleaned or "tailored_resume"
 
 
 def load_applied_jobs() -> dict[str, dict[str, Any]]:
@@ -614,7 +620,7 @@ def render_resume_tab() -> None:
         st.success(resume_load_message)
 
     jd = st.text_area("Job Description", height=320, placeholder="Paste the full JD here...", key="jd_input")
-    file_stem = st.text_input("Output file name", value="tailored_resume")
+    file_stem = sanitize_file_stem(st.text_input("Output file name", value="tailored_resume"))
 
     name_col, company_col = st.columns(2)
     with name_col:

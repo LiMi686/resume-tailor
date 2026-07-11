@@ -15,8 +15,8 @@ NAME = "LI MI"
 LOCATION = "Tucson, AZ"
 PHONE = "520 256 8742"
 EMAIL = "limi330@yeah.net"
-GITHUB_TEXT = "github.com/LiMi686/data-portfolio"
-GITHUB_URL = "https://github.com/LiMi686/data-portfolio"
+LINKEDIN_TEXT = "linkedin.com/in/li-mi-330upup"
+LINKEDIN_URL = "https://www.linkedin.com/in/li-mi-330upup/"
 
 EDUCATION = [
     (
@@ -133,7 +133,7 @@ def _add_header(document: Document) -> None:
     contact_paragraph.paragraph_format.space_after = Pt(6)
     run = contact_paragraph.add_run(f"{LOCATION} | {PHONE} | {EMAIL} | ")
     _set_run_font(run, size=SMALL_SIZE)
-    _add_hyperlink(contact_paragraph, GITHUB_TEXT, GITHUB_URL)
+    _add_hyperlink(contact_paragraph, LINKEDIN_TEXT, LINKEDIN_URL)
 
 
 def _add_section_heading(document: Document, title: str) -> None:
