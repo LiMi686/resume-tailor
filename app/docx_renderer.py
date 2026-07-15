@@ -12,7 +12,7 @@ from docx.shared import Inches, Pt, RGBColor
 from app.schema import ResumePayload
 
 NAME = "LI MI"
-LOCATION = "Tucson, AZ"
+LOCATION = "Phoenix, AZ"
 PHONE = "520 256 8742"
 EMAIL = "limi330@yeah.net"
 LINKEDIN_TEXT = "linkedin.com/in/li-mi-330upup"

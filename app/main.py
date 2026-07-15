@@ -35,7 +35,7 @@ from app.jobspy_bridge import (
 )
 from app.context_builder import build_prompt_context
 from app.renderer import render_resume
-from app.schema import ResumePayload
+from app.schema import ResumePayload, enforce_length_limits
 from app.compiler import compile_pdf, pdf_export_available
 from app.docx_renderer import render_docx, render_cover_letter_docx
 
@@ -710,6 +710,12 @@ def render_resume_tab() -> None:
                 payload, generation_usage, prompt_stats = call_model(jd)
                 payload, compression_usage = maybe_compress(payload, jd=jd)
                 total_usage = merge_usage(generation_usage, compression_usage)
+                payload, length_warnings = enforce_length_limits(payload)
+
+            if length_warnings:
+                with st.expander(f"{len(length_warnings)} bullet(s) trimmed to stay within length rules"):
+                    for warning in length_warnings:
+                        st.write(f"- {warning}")
 
             tex = render_resume(DATA_DIR / "master_resume.tex", payload)
             OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
