@@ -1348,5 +1348,32 @@
       "jobspy_sponsorship_filter_exempt": true,
       "match_key": "93000d34f48806d9"
     }
+  },
+  "d34cee01397603ea": {
+    "applied_at": "2026-07-16T17:17:57-07:00",
+    "match_snapshot": {
+      "rank": 3,
+      "title": "Data Center and RF Technician",
+      "url": "https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=7fa5b136-3a0d-48ce-b550-5fbd29ebff5f&ccId=19000101_000001&jobId=919019&source=IN&lang=en_US",
+      "jd_text": "***Why Join Rincon Research Corporation (RRC)?***  \n\nAt Rincon Research Corporation, our primary business is innovating, developing, and fielding digital signal processing (DSP) products and services for the United States Defense and Intelligence Communities in support of national security.\n\n\nRincon Research Corporation (RRC), an employee owned company, is seeking a talented, tenacious, results\\-driven individualto work in a multi\\-disciplinary R\\&D environment with similarly motivated electrical engineers, mathematicians, computer scientists, and analysts who are collectively responsible for creating custom digital signal processing solutions and leveraging them to make an operational mission impact.\n\n\nCome join the team that is creating cutting edge signal processing and geolocation systems for the future!\n\n ***What are the primary responsibilities in the Data Center and RF Technician position?***  \n\nAs a Data Center and RF Technician you will install, maintain, and troubleshoot structured cabling, wireless systems, data and RF networks, and information systems hardware. Additionally, you will plan, organize, and direct system and antenna installation and maintenance activities. This will require you to develop and improve work methods and procedures related to installation and maintenance of all cable and antenna systems. To succeed, you will need to have experience with the operation and maintenance of hand tools, power tools, fabrication equipment, and test equipment in support of design and installation solutions. Responsibilities to include, but not limited to:\n\n* Install and maintain computer hardware, such as servers and switches\n* Set up and configure servers, then monitor the hardware and software to ensure proper functionality\n* Respond promptly to system or environments faults to minimize downtime\n* Use electronic test equipment such as multimeters, oscilloscopes, spectrum analyzers, and signal generators\n* Manufacture and test network and RF cables\n* Deploy and troubleshoot various types of rack mounted electronics and associated cabling\n* Work collaboratively with multidisciplinary teams to develop solutions\n* Create and maintain system documentation such as data center infrastructure management, user guides, knowledge bases, and system maintenance records\n ***What*** ***required*** ***background will make you successful?***  \n\n* Active Security Clearance or Ability to obtain and maintain TS/SCI security clearance\n* Security certification in compliance with DOD 8570, such as Security \\+, within 90 days of hire\n* Professional certification in one or more areas within 6 months of hire\n\t+ Examples include: CFOT, soldering certification, CAD/Autodesk certification\n* Basic understanding of electrical principles and electrical component functions\n* US CITIZENSHIP REQUIRED\n ***Preferred skills:**** 2 year technical degree or 5 years of similar experience, including trades or military experience\n* Prior experience with installation of antennas and signal transmission systems\n* Working knowledge in the use of common tools and electronics test equipment\n* Working knowledge of basic electronic design principles\n* Ability to form acceptable solder joints and create wiring harnesses\n* Ability to assemble and tune performance on PCs or servers\n* Willingness to travel up to 20%\n ***Where is the position located?***\nThis position is located at our Tucson, Arizona Headquarters.\n\n* ***The likely salary range for this position is $80,000 to $95,000\\. This is not, however, a guarantee of compensation or salary. Rather, salary will be set based on experience, geographic location and possibly contractual requirements and could fall outside of this range.***\n\n ***What benefits does RRC offer?***  \n\n* 100% employer\\-paid premiums for family medical and dental insurance, employee life insurance, short\\-term and long\\-term disability (STD \\& LTD)\n* Flexible reimbursement spending accounts for medical expense and dependent care\n* Immediate participation and vesting in the company’s Employee Stock Ownership Plan (ESOP) and 401(k) Plan\n* Employer contributions to RRC’s ESOP\n* Employer matching contributions to the company’s 401( k) Plan\n* Employer discretionary contributions to the company’s 401(k) Plan\n\n  \n\nRincon Research Corporation is an equal opportunity employer and considers qualified applicants for employment without regard to race, color, creed, religion, national origin, sex, sexual orientation, gender identity and expression, age, disability, veteran status, or any other protected factor.",
+      "source_name": "JobSpy",
+      "company": "RINCON RESEARCH CORPORATION",
+      "location": "Tucson, AZ, US",
+      "jobspy_site": "indeed",
+      "jobspy_search_scope": "Tucson, AZ 85716 (USA)",
+      "jobspy_date_posted": "2026-07-15",
+      "jobspy_is_remote": false,
+      "jobspy_job_type": "fulltime",
+      "jobspy_salary": "USD 80,000-95,000 per yearly",
+      "jobspy_board_url": "https://www.indeed.com/viewjob?jk=6b4ed450c77baac7",
+      "jobspy_direct_url": "https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=7fa5b136-3a0d-48ce-b550-5fbd29ebff5f&ccId=19000101_000001&jobId=919019&source=IN&lang=en_US",
+      "jobspy_company_industry": "",
+      "jobspy_startup_score": 2,
+      "jobspy_startup_signals": "mid-size growth team",
+      "jobspy_visa_support_label": "unknown",
+      "jobspy_visa_support_signals": "",
+      "jobspy_sponsorship_filter_exempt": false,
+      "match_key": "d34cee01397603ea"
+    }
   }
 }
