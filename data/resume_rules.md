@@ -39,12 +39,13 @@
 - Preserve the LaTeX template exactly.
 - Keep the resume on one page.
 - Make the page feel as full as possible without causing overflow.
-- Always select exactly 3 experience entries and 3 project entries.
-- Always include Arizona List — Data Analyst Intern as one of the 3 experience entries. Choose the remaining 2 from the other entries based on JD fit.
+- Always select exactly 4 experience entries and 2 project entries. Work experience should be as complete and detailed as possible; projects stay focused on the strongest highlight plus one fuller runner-up.
+- Always include Arizona List — Data Analyst Intern as one of the 4 experience entries. Choose the remaining 3 from the other entries based on JD fit, dropping only the single least relevant one.
+- Always include the Community Food Bank Training | HackArizona Winner project as one of the 2 project entries, written with its full 3-bullet allotment — it is the strongest external differentiator and should be the standout of the section. Choose the second project as the single best JD match from the rest of the project library, and write it as a complete 2–3 bullet entry rather than a one-line mention.
 - Do not invent tools, metrics, responsibilities, or outcomes.
 - Do not invent technologies, business context, or impact.
 - Prefer ATS-friendly wording while keeping claims truthful.
-- Aim for 3 bullets per work experience entry whenever supported by the source material, and allow 4 only when the extra detail is genuinely useful.
+- Aim for 4 bullets per work experience entry whenever supported by the source material — write experience as fully and completely as possible; only drop to 3 if a 4th bullet would be redundant or unsupported.
 - Prefer specific methods, tools, analysis targets, business context, and validated outcomes when supported by the source material.
 - Do not fill space with generic, repetitive, or padded wording.
 - If the source material does not support more detail, keep the content shorter rather than adding filler.

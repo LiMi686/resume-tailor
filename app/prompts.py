@@ -106,17 +106,16 @@ Keep every claim truthful and source-supported.
 Never invent metrics, tools, responsibilities, technologies, or outcomes.
 Always include "Arizona List — Data Analyst Intern" in experiences.
 Always include the "Community Food Bank Training | HackArizona Winner" project in projects.
-Output EXACTLY this layout: 3 experiences + 3 projects. No other combination is valid.
-Experience selection: pick the 3 most JD-relevant entries. Always include "Arizona List — Data Analyst Intern". Choose the remaining 2 from: Usher Technologies, Cancer Center, Engineering RA, or Law Library — whichever best match the JD.
+Output EXACTLY this layout: 4 experiences + 2 projects. No other combination is valid.
+Experience selection: pick the 4 most JD-relevant entries — work experience should be written as fully and completely as possible, covering nearly the whole experience library. Always include "Arizona List — Data Analyst Intern". Choose the remaining 3 from: Usher Technologies, Cancer Center, Engineering RA, and Law Library, dropping only the single least JD-relevant one.
 Keep the resume to one page and make it full without overflow.
 Use concise ATS-friendly language.
 Summary must be one sentence, max 180 characters.
-Each experience entry includes a pool of supported bullets. Select the 3–4 most JD-relevant bullets from the pool; do not use all of them.
-Prefer 3 bullets per experience; allow 4 only when the extra detail is clearly worth the space.
-Each experience bullet must be at most 110 characters. Cut filler words aggressively to stay under this limit.
+Each experience entry includes a pool of supported bullets. Select the most JD-relevant bullets from the pool; do not use all of them.
+Prefer 4 bullets per experience whenever the source material supports it — work experience is the priority section and should read as complete. Only use 3 bullets if a 4th would be redundant or unsupported by the source material.
+Each experience bullet must be at most 110 characters, and should use most of that budget — a bullet far shorter than the limit is under-using space, not being efficient. Keep concrete scale numbers, tools, and scenario context from the source bullet; only cut filler words, not substance.
 Exception: "Arizona List — Data Analyst Intern" bullets may be up to 170 characters and may use all 4 bullets if JD-relevant.
-For the "Community Food Bank Training | HackArizona Winner" project, always write 2–3 detailed bullets up to 180 characters each; select the most impressive technical and impact details.
-For all other projects, write exactly 1 concise bullet up to 120 characters.
+Project selection: choose exactly 2 projects. The "Community Food Bank Training | HackArizona Winner" project is mandatory and should be the standout highlight of the section — always write its full 3-bullet allotment, up to 180 characters each, covering the most impressive technical and impact details. Choose the second project as the single most JD-relevant entry from the rest of the project library, and write it as a complete, substantive entry — 2–3 bullets up to 150 characters each, not a single-line mention.
 Keep skill lines compact: list only the most relevant items, comma-separated.
 Match the resume language to the JD language.
 """
@@ -141,20 +140,20 @@ Target job description (use this to judge relevance):
 
 Compress this JSON by about {percent}% to ensure it fits on one page.
 Do not change the selected experiences or projects.
-Keep the exact same layout as the input: 3 experiences + 3 projects. Do not change the count.
+Keep the exact same layout as the input: 4 experiences + 2 projects. Do not change the count.
 Keep "Arizona List — Data Analyst Intern" in experiences.
 Keep "Community Food Bank Training | HackArizona Winner" in projects.
 
-Prioritize cuts from least JD-relevant content first:
-1. Drop the 4th bullet from non-Arizona-List experience entries if they have 4 bullets.
-2. Shorten bullets in experiences that are less relevant to the JD.
-3. Shorten bullets in non-HackArizona projects.
-4. Shorten HackArizona project bullets last.
+Work experience is the priority section on this resume and should stay as detailed as possible. Prioritize cuts from least-priority content first:
+1. Shorten bullets in the second (non-HackArizona) project first.
+2. Shorten "Community Food Bank Training | HackArizona Winner" bullet wording next — keep all 3 bullets, just tighten the text.
+3. Shorten bullets in the experience entries that are least relevant to the JD.
+4. Only as a last resort, drop the 4th bullet from the single least-relevant non-Arizona-List experience entry.
 
-Each experience bullet must be at most 110 characters after compression.
+Each experience bullet must be at most 110 characters after compression; keep all 4 bullets per experience wherever possible.
 Exception: do not shorten "Arizona List — Data Analyst Intern" bullets below 150 characters; keep all 4 bullets for that role.
-HackArizona Winner project bullets may be up to 160 characters; preserve as many as possible.
-All other project bullets must be at most 100 characters after compression.
+HackArizona Winner project bullets may be shortened to as low as 150 characters if needed, but always keep all 3.
+The second project's bullets must be at most 120 characters after compression, and may be reduced to 2 bullets if space is still tight after all other cuts.
 Summary must be at most 160 characters.
 Preserve truthfulness, ATS keywords, and one-page fit.
 Return only valid JSON.
